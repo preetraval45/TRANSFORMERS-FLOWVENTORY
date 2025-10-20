@@ -17,3 +17,25 @@ def create_order(order: OrderIn):
 @router.get("/", response_model=List[OrderOut])
 def list_orders():
     return orders_db
+
+@router.get("/{order_id}", response_model=OrderOut)
+def get_order(order_id: int):
+    for order in orders_db:
+        if order["id"] == order_id:
+            return order
+    return {"error": "Order not found"}
+
+@router.delete("/{order_id}", response_model=dict)
+def delete_order(order_id: int):
+    global orders_db
+    orders_db = [order for order in orders_db if order["id"] != order_id]
+    return {"message": "Order deleted"}
+
+@router.put("/{order_id}", response_model=OrderOut)
+def update_order(order_id: int, updated_order: OrderIn):
+    for index, order in enumerate(orders_db):
+        if order["id"] == order_id:
+            orders_db[index].update(updated_order.model_dump())
+            return orders_db[index]
+    return {"error": "Order not found"}
+

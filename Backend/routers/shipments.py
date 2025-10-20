@@ -18,3 +18,16 @@ def create_shipment(shipment: ShipmentIn):
 @router.get("/", response_model=List[ShipmentOut])
 def list_shipments():
     return shipments_db
+
+@router.get("/{ship_id}", response_model=ShipmentOut)
+def get_shipment(ship_id: int):
+    for ship in shipments_db:
+        if ship["id"] == ship_id:
+            return ship
+    return {"error": "Shipment not found"}
+
+@router.delete("/{ship_id}", response_model=dict)
+def delete_shipment(ship_id: int):
+    global shipments_db
+    shipments_db = [ship for ship in shipments_db if ship["id"] != ship_id]
+    return {"message": "Shipment deleted"}
