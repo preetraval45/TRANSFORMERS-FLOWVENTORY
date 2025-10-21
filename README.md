@@ -18,6 +18,8 @@ Inventory & Shipment Management Portal - A shared platform for vendors and engin
 
 TRANSFORMERS/
 ├── Backend/           # Python & FastAPI backend services
+   ├── db/             # database models and classes
+   ├── routers/        # Api routers
 ├── Database/          # Database schemas and configurations
 ├── Docker/            # Docker containerization files
 ├── Documentation/     # Project documentation and meeting minutes
