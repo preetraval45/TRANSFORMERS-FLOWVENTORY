@@ -2,6 +2,10 @@ Deliverable 1 (Meeting Minutes):
     Documentation -> Minutes -> 9-15.md
 Deliverable 2 (Structure):
     Documentation -> Notes for Del-2 -> Notes.md
+Deliverable 3 (Structure):
+    Documentation -> Minutes -> 10-20.md
+    inspection-code-transformers.md
+
 Other Deliverables:
     Documentation -> UML - Class Diagram.png
     Documentation -> UML - Class Structure.png
@@ -9,4 +13,3 @@ Other Deliverables:
     Documentation -> flowventory_class_diagram_enhanced.puml
     Documentation -> flowventory_simple_class_diagram.puml
     Documentation -> flowventory_usecase_diagram_vertical.puml
-    
