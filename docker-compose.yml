@@ -1,0 +1,66 @@
+services:
+  db:
+    image: postgres:17
+    container_name: flowventory-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: changeme
+      POSTGRES_DB: flowventory
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./Database/initdb:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      retries: 10
+      timeout: 5s
+      start_period: 5s
+
+  backend:
+    build:
+      context: .
+      dockerfile: Backend/dockerfile
+    container_name: flowventory-backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://postgres:changeme@db:5432/flowventory
+    ports:
+      - "8000:8000"
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    working_dir: /app
+    volumes:
+      - ./Backend:/app
+      - ./Database:/app/database
+
+  frontend:
+    build:
+      context: ./Frontend/flowventory-app
+      dockerfile: Dockerfile
+    container_name: flowventory-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_started
+    ports:
+      - "3000:3000"
+
+  nginx:
+    image: nginx:alpine
+    container_name: flowventory-nginx
+    restart: unless-stopped
+    depends_on:
+      frontend:
+        condition: service_started
+    ports:
+      - "80:80"
+    volumes:
+      - ./Frontend/flowventory-app/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+
+volumes:
+  postgres_data:

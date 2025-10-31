@@ -38,4 +38,3 @@ def update_inventory_item(item_id: int, updated_item: InventoryItemIn):
             inventory_db[index].update(updated_item.model_dump())
             return inventory_db[index]
     return {"error": "Inventory item not found"}
-
