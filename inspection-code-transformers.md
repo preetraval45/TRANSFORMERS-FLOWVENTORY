@@ -1,3 +1,4 @@
+## main file that runs the backend
 main.py
 
 import uvicorn
@@ -18,7 +19,7 @@ sys.path.append(str(Path(__file__).resolve().parent))
 app = FastAPI()
 
 origins = [
-    "*" #here put the url of the frontend server. For now its open to everything
+    "*" #here put the url of the frontend server before production. For now its open to everything
 ]
 
 app.add_middleware(
@@ -35,16 +36,16 @@ app.include_router(shipments_router)
 app.include_router(inventory_router)
 app.include_router(packing_slips_router)
 
-#Example endpoints
+## Health Check
 @app.get("/")
 def health():
     return {"ok": True, "service": "flowventory"}
 
-if __name__ == "__main__":
+if __name__ == "__main__": 
     uvicorn.run(app, host="0.0.0.0", port=8000)
 
-
-
+## Routers (All the methods to add, remove, and update inventory items)
+## Inventory Router 
 Inventory.py
 
 from typing import List
@@ -88,6 +89,8 @@ def update_inventory_item(item_id: int, updated_item: InventoryItemIn):
             return inventory_db[index]
     return {"error": "Inventory item not found"}
 
+## Orders router
+
 orders.py
 
 from typing import List
@@ -130,6 +133,8 @@ def update_order(order_id: int, updated_order: OrderIn):
             orders_db[index].update(updated_order.model_dump())
             return orders_db[index]
     return {"error": "Order not found"}
+
+## Packing slip router
 
 packing_slips.py
 
@@ -176,6 +181,8 @@ def update_packing_slip(ps_id: int, updated_ps: PackingSlipIn):
             return packing_slips_db[index]
     return {"error": "Packing slip not found"}
 
+## Shipments router
+
 shipments.py
 
 from typing import List
@@ -211,6 +218,8 @@ def delete_shipment(ship_id: int):
     global shipments_db
     shipments_db = [ship for ship in shipments_db if ship["id"] != ship_id]
     return {"message": "Shipment deleted"}
+
+## Users Router
 
 users.py
 
@@ -254,3 +263,50 @@ def update_user(user_id: int, updated_user: UserIn):
             users_db[index].update(updated_user.model_dump())
             return users_db[index]
     return {"error": "User not found"}
+
+## Frontend Core Functionalities
+
+## Handling User login
+const handleLogin = async (e) => {
+    e.preventDefault();
+    setError('');
+    setIsLoading(true);
+
+    // Add small delay for better UX
+    setTimeout(() => {
+      if (login(username, password)) {
+        router.push('/dashboard');
+      } else {
+        setError('Invalid username or password');
+        setIsLoading(false);
+      }
+    }, 800);
+  };
+
+## Shipment file handling
+  const handleDrag = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      setUploadedFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setUploadedFile(e.target.files[0]);
+    }
+  };
+
