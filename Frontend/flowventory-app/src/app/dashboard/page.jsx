@@ -29,17 +29,17 @@ export default function Dashboard() {
     { name: 'Urgency', isDropdown: true }
   ];
 
-  const handleUpload = () => {
-    alert('File upload functionality would be implemented here');
-  };
+  // const handleUpload = () => {
+  //   alert('File upload functionality would be implemented here');
+  // };
 
-  const handleAddInventory = () => {
-    alert('Add inventory functionality would be implemented here');
-  };
+  // const handleAddInventory = () => {
+  //   alert('Add inventory functionality would be implemented here');
+  // };
 
-  const handleSearchHistoric = () => {
-    alert('Search historic records functionality would be implemented here');
-  };
+  // const handleSearchHistoric = () => {
+  //   alert('Search historic records functionality would be implemented here');
+  // };
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -69,12 +69,12 @@ export default function Dashboard() {
             <button className="w-full bg-blue-600 text-white py-2 px-4 rounded text-sm font-medium hover:bg-blue-700">
               View Orders
             </button>
-            <button className="w-full bg-green-600 text-white py-2 px-4 rounded text-sm font-medium hover:bg-green-700">
+            {/* <button className="w-full bg-green-600 text-white py-2 px-4 rounded text-sm font-medium hover:bg-green-700">
               Upload Packing Slip
             </button>
             <button className="w-full bg-red-600 text-white py-2 px-4 rounded text-sm font-medium hover:bg-red-700">
               Manage Users
-            </button>
+            </button> */}
           </div>
         </div>
       </div>
@@ -147,8 +147,8 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Recent Activity */}
+        {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          
           <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h2>
             <div className="space-y-4">
@@ -181,9 +181,9 @@ export default function Dashboard() {
                 Search Historic Records
               </button>
             </div>
-          </div>
+          </div> */}
 
-          {/* Upload Packing Slip Form */}
+          {/* Upload Packing Slip Form
           <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Upload Packing Slip</h2>
             <div className="space-y-4">
@@ -225,9 +225,9 @@ export default function Dashboard() {
                     <p className="text-sm">Drop files here or click to upload</p>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
-              <div>
+              {/* <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Notes (optional)
                 </label>
@@ -242,10 +242,10 @@ export default function Dashboard() {
 
               <button className="w-full bg-gray-800 text-white py-2 px-4 rounded text-sm font-medium hover:bg-gray-900">
                 Submit
-              </button>
-            </div>
-          </div>
-        </div>
+              </button> */}
+            {/* </div> */}
+          {/* </div> */}
+        {/* </div> */}
       </div>
     </div>
   );

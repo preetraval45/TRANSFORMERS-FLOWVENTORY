@@ -79,9 +79,7 @@ export default function Inventory() {
       <div className="flex-1 p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Inventory</h1>
-          <button className="bg-green-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-green-700">
-            Upload Packing Slip
-          </button>
+          
         </div>
 
         {/* Search Bar */}
