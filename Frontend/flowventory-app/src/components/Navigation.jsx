@@ -17,7 +17,7 @@ export default function Navigation() {
     { name: 'Dashboard', path: '/dashboard', roles: ['admin', 'engineer', 'client'] },
     { name: 'Inventory', path: '/inventory', roles: ['admin', 'engineer'] },
     { name: 'Shipments', path: '/shipments', roles: ['admin', 'engineer'] },
-    { name: 'Uploads', path: '/uploads', roles: ['admin', 'engineer'] },
+    // { name: 'Uploads', path: '/uploads', roles: ['admin', 'engineer'] },
     { name: 'Admin', path: '/admin', roles: ['admin'] }
   ];
 

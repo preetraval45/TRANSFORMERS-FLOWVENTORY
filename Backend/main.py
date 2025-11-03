@@ -10,11 +10,9 @@ from routers.inventory import router as inventory_router
 from routers.packing_slips import router as packing_slips_router
 import sys
 from pathlib import Path
+# from db.database import Base, engine
 
-from db.database import Base, engine
-from db import sql_models
-
-Base.metadata.create_all(bind=engine)
+# Base.metadata.create_all(bind=engine)
 
 sys.path.append(str(Path(__file__).resolve().parent))
 
