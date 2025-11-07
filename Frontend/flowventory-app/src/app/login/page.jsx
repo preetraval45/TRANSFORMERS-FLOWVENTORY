@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import FlowventoryLogo from '@/components/FlowventoryLogo';
 
 export default function Login() {
   const [username, setUsername] = useState('');
@@ -50,11 +51,11 @@ export default function Login() {
       <div className="max-w-md w-full">
         {/* Logo and Header */}
         <div className="text-center mb-8">
-          <div className="mx-auto w-20 h-20 bg-gradient-to-r from-blue-600 to-green-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
-            <span className="text-3xl text-white font-bold">F</span>
+          <div className="mx-auto mb-4 flex justify-center">
+            <FlowventoryLogo size={80} />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Flowventory</h1>
-          <p className="text-gray-600">Inventory Management System</p>
+          <p className="text-gray-600">Warehouse Inventory Management System</p>
         </div>
 
         {/* Login Card */}

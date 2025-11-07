@@ -8,13 +8,21 @@ from routers.orders import router as orders_router
 from routers.shipments import router as shipments_router
 from routers.inventory import router as inventory_router
 from routers.packing_slips import router as packing_slips_router
+from db.database import engine, Base
+from db import db_models
 import sys
 from pathlib import Path
 # from db.database import Base, engine
 
+<<<<<<< Updated upstream
 # Base.metadata.create_all(bind=engine)
 
+=======
+>>>>>>> Stashed changes
 sys.path.append(str(Path(__file__).resolve().parent))
+
+# Create all database tables
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI() 
 

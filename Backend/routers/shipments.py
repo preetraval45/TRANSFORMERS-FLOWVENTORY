@@ -1,33 +1,53 @@
 from typing import List
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
 from db.models import ShipmentIn, ShipmentOut
-from db.memory import shipments_db
-
-#shipments_db here links to the in-memory temporary memory, needs to be changed when database implemented.
-
+from db import db_models
+from db.database import get_db
 
 router = APIRouter(prefix="/shipments", tags=["shipments"])
 
 @router.post("/", response_model=ShipmentOut)
-def create_shipment(shipment: ShipmentIn):
-    new_ship = shipment.model_dump()
-    new_ship["id"] = len(shipments_db) + 1
-    shipments_db.append(new_ship)
-    return new_ship
+def create_shipment(shipment: ShipmentIn, db: Session = Depends(get_db)):
+    shipment_data = shipment.model_dump()
+    items = [item.model_dump() if hasattr(item, 'model_dump') else item for item in shipment.items]
+    shipment_data["items"] = items
+    db_shipment = db_models.Shipment(**shipment_data)
+    db.add(db_shipment)
+    db.commit()
+    db.refresh(db_shipment)
+    return db_shipment
 
 @router.get("/", response_model=List[ShipmentOut])
-def list_shipments():
-    return shipments_db
+def list_shipments(db: Session = Depends(get_db)):
+    return db.query(db_models.Shipment).all()
 
 @router.get("/{ship_id}", response_model=ShipmentOut)
-def get_shipment(ship_id: int):
-    for ship in shipments_db:
-        if ship["id"] == ship_id:
-            return ship
-    return {"error": "Shipment not found"}
+def get_shipment(ship_id: int, db: Session = Depends(get_db)):
+    shipment = db.query(db_models.Shipment).filter(db_models.Shipment.id == ship_id).first()
+    if not shipment:
+        raise HTTPException(status_code=404, detail="Shipment not found")
+    return shipment
 
 @router.delete("/{ship_id}", response_model=dict)
-def delete_shipment(ship_id: int):
-    global shipments_db
-    shipments_db = [ship for ship in shipments_db if ship["id"] != ship_id]
+def delete_shipment(ship_id: int, db: Session = Depends(get_db)):
+    shipment = db.query(db_models.Shipment).filter(db_models.Shipment.id == ship_id).first()
+    if not shipment:
+        raise HTTPException(status_code=404, detail="Shipment not found")
+    db.delete(shipment)
+    db.commit()
     return {"message": "Shipment deleted"}
+
+@router.put("/{ship_id}", response_model=ShipmentOut)
+def update_shipment(ship_id: int, updated_shipment: ShipmentIn, db: Session = Depends(get_db)):
+    shipment = db.query(db_models.Shipment).filter(db_models.Shipment.id == ship_id).first()
+    if not shipment:
+        raise HTTPException(status_code=404, detail="Shipment not found")
+    shipment_data = updated_shipment.model_dump()
+    for key, value in shipment_data.items():
+        if key == "items":
+            value = [item.model_dump() if hasattr(item, 'model_dump') else item for item in updated_shipment.items]
+        setattr(shipment, key, value)
+    db.commit()
+    db.refresh(shipment)
+    return shipment

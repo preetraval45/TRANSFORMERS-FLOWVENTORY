@@ -1,26 +1,18 @@
-# Use the official Node.js runtime as the base image
-FROM node:18-alpine
+FROM node:20-alpine
 
-# Set working directory
 WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
 
-# Install all dependencies (including dev dependencies for build)
-RUN npm ci
+# Install dependencies
+RUN npm install
 
 # Copy application code
 COPY . .
 
-# Build the application
-RUN npm run build
-
-# Remove dev dependencies after build
-RUN npm prune --production
-
-# Expose the port the app runs on
+# Expose port
 EXPOSE 3000
 
-# Start the application
-CMD ["npm", "start"]
+# Start the application in development mode, binding to 0.0.0.0
+CMD ["npm", "run", "dev", "--", "-H", "0.0.0.0"]

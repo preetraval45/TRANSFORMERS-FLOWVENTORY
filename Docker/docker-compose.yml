@@ -1,36 +1,91 @@
-version: "3.9"
+version: '3.8'
 
 services:
-  backend:
-    build: ./backend
-    container_name: backend
+  db:
+    image: postgres:15-alpine
+    container_name: flowventory-db
     ports:
-      - "8000:8000"
-    depends_on:
-      - postgres
+      - "4001:5432"
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/inspection_db
-    networks:
-      - app_network
-
-  postgres:
-    image: postgres:15
-    container_name: postgres
-    restart: always
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=inspection_db
-    ports:
-      - "5432:5432"
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: flowventory
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./database:/docker-entrypoint-initdb.d
     networks:
-      - app_network
+      - flowventory-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ../Backend
+      dockerfile: Dockerfile
+    container_name: flowventory-backend
+    ports:
+      - "4002:8000"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/flowventory
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - flowventory-network
+    volumes:
+      - ../Backend:/app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  frontend:
+    build:
+      context: ../Frontend/flowventory-app
+      dockerfile: Dockerfile
+    container_name: flowventory-frontend
+    ports:
+      - "4003:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: /api
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - flowventory-network
+    volumes:
+      - ../Frontend/flowventory-app:/app
+      - /app/node_modules
+      - /app/.next
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000', (r) => process.exit(r.statusCode >= 200 && r.statusCode < 400 ? 0 : 1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: flowventory-nginx
+    ports:
+      - "4000:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
+    networks:
+      - flowventory-network
+
+networks:
+  flowventory-network:
+    driver: bridge
 
 volumes:
   postgres_data:
-
-networks:
-  app_network:

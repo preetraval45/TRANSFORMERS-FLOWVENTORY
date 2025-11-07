@@ -65,10 +65,25 @@ InventoryStatus = Literal["pending_inspection", "ready_for_deployment", "install
 
 class InventoryItemIn(BaseModel):
     item_id: str            # enforce uniqueness in DB/service
+    sku: Optional[str] = None
     description: Optional[str] = None
     vendor: Optional[str] = None
     quantity: int = 0
-    storage_location: Optional[str] = None
+
+    # Amazon-style warehouse location fields
+    zone: Optional[str] = None  # e.g., "A", "B", "C"
+    aisle: Optional[str] = None  # e.g., "A1", "B2"
+    rack: Optional[str] = None  # e.g., "R01", "R02"
+    shelf: Optional[str] = None  # e.g., "S1", "S2"
+    bin: Optional[str] = None  # e.g., "BIN-001"
+    storage_location: Optional[str] = None  # Full location string
+
+    # Item properties
+    category: Optional[str] = None  # Electronics, PCB, Components, etc.
+    weight: Optional[str] = None
+    dimensions: Optional[str] = None
+    barcode: Optional[str] = None
+
     status: InventoryStatus = "pending_inspection"
 
 class InventoryItemOut(InventoryItemIn):

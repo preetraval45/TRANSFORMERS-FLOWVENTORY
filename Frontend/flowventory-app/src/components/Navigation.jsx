@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import FlowventoryLogo from './FlowventoryLogo';
 
 export default function Navigation() {
   const { user, logout } = useAuth();
@@ -15,9 +16,10 @@ export default function Navigation() {
 
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', roles: ['admin', 'engineer', 'client'] },
-    { name: 'Inventory', path: '/inventory', roles: ['admin', 'engineer'] },
+    { name: 'Stock', path: '/stock', roles: ['admin', 'engineer'] },
+    { name: 'Pick', path: '/pick', roles: ['admin', 'engineer'] },
     { name: 'Shipments', path: '/shipments', roles: ['admin', 'engineer'] },
-    // { name: 'Uploads', path: '/uploads', roles: ['admin', 'engineer'] },
+    { name: 'Inventory', path: '/inventory', roles: ['admin', 'engineer'] },
     { name: 'Admin', path: '/admin', roles: ['admin'] }
   ];
 
@@ -30,9 +32,7 @@ export default function Navigation() {
       <div className="flex items-center justify-between max-w-7xl mx-auto">
         <div className="flex items-center">
           <Link href="/dashboard" className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-green-600 rounded-xl flex items-center justify-center">
-              <span className="text-xl text-white font-bold">F</span>
-            </div>
+            <FlowventoryLogo size={44} />
             <span className="text-xl font-bold text-gray-900">Flowventory</span>
           </Link>
         </div>

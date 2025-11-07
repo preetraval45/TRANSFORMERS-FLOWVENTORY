@@ -1,42 +1,49 @@
 from typing import List
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
 from db.models import PackingSlipIn, PackingSlipOut
-from db.memory import packing_slips_db
-
-#packing_slips_db here links to the in-memory temporary memory, needs to be changed when database implemented.
-
+from db import db_models
+from db.database import get_db
 
 router = APIRouter(prefix="/packing_slips", tags=["packing_slips"])
 
 @router.post("/", response_model=PackingSlipOut)
-def upload_packing_slip(ps: PackingSlipIn):
-    new_ps = ps.model_dump()
-    new_ps["id"] = len(packing_slips_db) + 1
-    new_ps["uploaded_by"] = 1  # pretend user id = 1
-    packing_slips_db.append(new_ps)
-    return new_ps
+def upload_packing_slip(ps: PackingSlipIn, db: Session = Depends(get_db)):
+    ps_data = ps.model_dump()
+    ps_data["uploaded_by"] = 1  # pretend user id = 1
+    db_ps = db_models.PackingSlip(**ps_data)
+    db.add(db_ps)
+    db.commit()
+    db.refresh(db_ps)
+    return db_ps
 
 @router.get("/", response_model=List[PackingSlipOut])
-def list_packing_slips():
-    return packing_slips_db
+def list_packing_slips(db: Session = Depends(get_db)):
+    return db.query(db_models.PackingSlip).all()
 
 @router.get("/{ps_id}", response_model=PackingSlipOut)
-def get_packing_slip(ps_id: int):
-    for ps in packing_slips_db:
-        if ps["id"] == ps_id:
-            return ps
-    return {"error": "Packing slip not found"}
+def get_packing_slip(ps_id: int, db: Session = Depends(get_db)):
+    ps = db.query(db_models.PackingSlip).filter(db_models.PackingSlip.id == ps_id).first()
+    if not ps:
+        raise HTTPException(status_code=404, detail="Packing slip not found")
+    return ps
 
 @router.delete("/{ps_id}", response_model=dict)
-def delete_packing_slip(ps_id: int):
-    global packing_slips_db
-    packing_slips_db = [ps for ps in packing_slips_db if ps["id"] != ps_id]
+def delete_packing_slip(ps_id: int, db: Session = Depends(get_db)):
+    ps = db.query(db_models.PackingSlip).filter(db_models.PackingSlip.id == ps_id).first()
+    if not ps:
+        raise HTTPException(status_code=404, detail="Packing slip not found")
+    db.delete(ps)
+    db.commit()
     return {"message": "Packing slip deleted"}
 
 @router.put("/{ps_id}", response_model=PackingSlipOut)
-def update_packing_slip(ps_id: int, updated_ps: PackingSlipIn):
-    for index, ps in enumerate(packing_slips_db):
-        if ps["id"] == ps_id:
-            packing_slips_db[index].update(updated_ps.model_dump())
-            return packing_slips_db[index]
-    return {"error": "Packing slip not found"}
+def update_packing_slip(ps_id: int, updated_ps: PackingSlipIn, db: Session = Depends(get_db)):
+    ps = db.query(db_models.PackingSlip).filter(db_models.PackingSlip.id == ps_id).first()
+    if not ps:
+        raise HTTPException(status_code=404, detail="Packing slip not found")
+    for key, value in updated_ps.model_dump(exclude={"uploaded_by"}, exclude_unset=True).items():
+        setattr(ps, key, value)
+    db.commit()
+    db.refresh(ps)
+    return ps
