@@ -14,20 +14,12 @@ import sys
 from pathlib import Path
 # from db.database import Base, engine
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-# Base.metadata.create_all(bind=engine)
-
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 sys.path.append(str(Path(__file__).resolve().parent))
 
 # Create all database tables
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI() 
+app = FastAPI()
 
 origins = [
     "*" #here put the url of the frontend server. For now its open to everything
@@ -54,7 +46,3 @@ def health():
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
-
-
-
