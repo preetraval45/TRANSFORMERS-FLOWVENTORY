@@ -83,7 +83,7 @@ export default function Inventory() {
       console.log("Item deleted successfully");
   
       setEditingItem(null);
-      await fetchInventoryData();   // Refresh list
+      await fetchInventoryData(); 
     } catch (error) {
       console.error("Error deleting item:", error);
     }
@@ -491,6 +491,12 @@ export default function Inventory() {
                   className="px-4 py-2 rounded-md bg-blue-600 text-white font-medium"
                 >
                   Save
+                </button>
+                <button
+                  onClick={handleDelete}
+                  className="px-4 py-2 rounded-md bg-red-600 text-white font-medium"
+                >
+                  Delete
                 </button>
               </div>
             </div>

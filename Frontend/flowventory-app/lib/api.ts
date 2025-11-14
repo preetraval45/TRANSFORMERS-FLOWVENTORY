@@ -91,6 +91,13 @@ export const api = {
     return response.json();
   },
 
+  deleteInventoryItem: async (id: number) => {
+    const response = await fetch(`${API_BASE_URL}/inventory/${id}`, {
+      method: 'DELETE',
+    });
+    return response.json();
+  },
+
   // Packing Slips
   getPackingSlips: async () => {
     const response = await fetch(`${API_BASE_URL}/packing_slips`);
