@@ -26,11 +26,11 @@ body {
 }
 
 
-input, textarea {
+input, textarea, select{
   color: var(--background);
   background: var(--foreground);
 }
 
-input::placeholder, textarea::placeholder {
+input::placeholder, textarea::placeholder, select::placeholder {
   color: var(--background);
 }

@@ -184,32 +184,6 @@ export default function Stock() {
                     placeholder="e.g., SKU-2001"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Work Order (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    name="work_order"
-                    value={formData.work_order}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring focus:ring-green-200 transition-all"
-                    placeholder="e.g., WO-2024-001"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Barcode
-                  </label>
-                  <input
-                    type="text"
-                    name="barcode"
-                    value={formData.barcode}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring focus:ring-green-200 transition-all font-mono"
-                    placeholder="e.g., BC1234567"
-                  />
-                </div>
               </div>
             </div>
 
@@ -247,19 +221,6 @@ export default function Stock() {
                       <option key={cat} value={cat}>{cat}</option>
                     ))}
                   </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Vendor
-                  </label>
-                  <input
-                    type="text"
-                    name="vendor"
-                    value={formData.vendor}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring focus:ring-green-200 transition-all"
-                    placeholder="e.g., Digikey, Mouser"
-                  />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -364,19 +325,6 @@ export default function Stock() {
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring focus:ring-green-200 transition-all"
                     placeholder="S1"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Bin
-                  </label>
-                  <input
-                    type="text"
-                    name="bin"
-                    value={formData.bin}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring focus:ring-green-200 transition-all"
-                    placeholder="BIN-001"
                   />
                 </div>
               </div>
