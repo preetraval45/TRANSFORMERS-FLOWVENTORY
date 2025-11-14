@@ -14,10 +14,6 @@ import sys
 from pathlib import Path
 # from db.database import Base, engine
 
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/main
 sys.path.append(str(Path(__file__).resolve().parent))
 
 # Create all database tables
