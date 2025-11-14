@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, JSON, Text
+from sqlalchemy import Column, Integer, String, ForeignKey, JSON, Text, Date
 from sqlalchemy.orm import relationship
 from db.database import Base
 
@@ -28,14 +28,31 @@ class Shipment(Base):
     __tablename__ = "shipments"
 
     id = Column(Integer, primary_key=True, index=True)
-    vendor = Column(String, nullable=False)
-    carrier = Column(String, nullable=True)
-    tracking_number = Column(String, nullable=True)
-    expected_delivery_date = Column(String, nullable=True)
-    order_id = Column(Integer, ForeignKey("orders.id"), nullable=True)
-    status = Column(String, nullable=False, default="pending")  # "pending", "partially_received", "received"
-    items = Column(JSON, nullable=False, default=[])
+    our_name = Column(String, nullable=False, default="Flowventory")
+    our_address = Column(
+        String,
+        nullable=False,
+        default="9201 University City Blvd, Charlotte, NC 28223",
+    )
+    bill_to = Column(String, nullable=True)
+    ship_to = Column(String, nullable=True)
 
+    # Invoice / dates
+    invoice_number = Column(String, nullable=False, unique=True, index=True)
+    invoice_date = Column(Date, nullable=False)
+    due_date = Column(Date, nullable=True)
+
+    # Shipping details
+    ship_via = Column(String, nullable=True)  # e.g. "FedEx", "UPS"
+    order_number = Column(String, nullable=True)
+
+    # Item info
+    qty = Column(Integer, nullable=False)
+    item_type = Column(String, nullable=False)
+    item_desc = Column(String, nullable=True)
+
+    # Optional link back to your orders table
+    order_id = Column(Integer, ForeignKey("orders.id"), nullable=True)
     order = relationship("Order", backref="shipments")
 
 
