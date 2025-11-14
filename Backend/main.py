@@ -14,14 +14,7 @@ import sys
 from pathlib import Path
 # from db.database import Base, engine
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-# Base.metadata.create_all(bind=engine)
 
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 sys.path.append(str(Path(__file__).resolve().parent))
 
 # Create all database tables
