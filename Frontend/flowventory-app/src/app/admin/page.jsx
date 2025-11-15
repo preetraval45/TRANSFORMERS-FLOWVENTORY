@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { users } from '@/data/users';
+import api from '../../../lib/api';
 
 export default function Admin() {
   const { user } = useAuth();
@@ -40,10 +41,32 @@ export default function Admin() {
     setShowAddUser(true);
   };
 
-  const handleSaveUser = () => {
-    alert(`New user would be created:\nUsername: ${newUser.username}\nPassword: ${newUser.password}\nRole: ${newUser.role}`);
-    setShowAddUser(false);
-    setNewUser({ username: '', firstName: '', role: 'client', password: '' });
+  const handleSaveUser = async () => {
+    try {
+
+      if (!newUser.firstName || !newUser.username || !newUser.password) {
+        alert('Please fill out first name, username, and generate a password before creating a user.');
+        return;
+      }
+
+      const payload = {
+        username: newUser.username,
+        firstname: newUser.firstName,
+        role: newUser.role,
+        password: newUser.password,
+      };
+  
+      await api.createUser(payload);
+  
+      alert(`User created:\nUsername: ${newUser.username}\nRole: ${newUser.role}`);
+
+      setShowAddUser(false);
+      setNewUser({ username: '', firstName: '', role: 'client', password: '' });
+
+    } catch (error) {
+      console.error('Error creating user:', error);
+      alert('There was an error creating the user. Please try again.');
+    }
   };
 
   if (user?.role !== 'admin') {
@@ -134,51 +157,7 @@ export default function Admin() {
           {/* Right Sidebar */}
           <div className="w-80">
             <div className="space-y-6">
-              {/* Audit Logs */}
-              <div className="bg-white border border-gray-200 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-900 mb-4">Audit Logs</h3>
-                <div className="space-y-3 text-sm text-gray-600">
-                  <div>• User login: Preet - 2025-01-20</div>
-                  <div>• User login: Carlotta - 2025-01-19</div>
-                  <div>• User login: Yana - 2025-01-18</div>
-                </div>
-              </div>
 
-              {/* System Settings */}
-              <div className="bg-white border border-gray-200 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-900 mb-4">System Settings</h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Attach File
-                    </label>
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                      <div className="text-gray-500 text-sm">
-                        Drop files here or click to upload
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Notes (optional)
-                    </label>
-                    <textarea
-                      rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Add system notes"
-                    />
-                  </div>
-
-                  <button className="w-full bg-gray-800 text-white py-2 px-4 rounded text-sm font-medium hover:bg-gray-900">
-                    Submit
-                  </button>
-
-                  <button className="w-full bg-gray-600 text-white py-2 px-4 rounded text-sm font-medium hover:bg-gray-700">
-                    System Settings
-                  </button>
-                </div>
-              </div>
             </div>
           </div>
         </div>

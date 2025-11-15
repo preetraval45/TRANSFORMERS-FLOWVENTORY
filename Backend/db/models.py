@@ -7,15 +7,15 @@ from pydantic import BaseModel
 Role = Literal["client", "engineer", "admin"]
 
 class UserIn(BaseModel):
-    email: str
-    full_name: str
+    username: str
+    firstname: str
     role: Role
     password: str  # only for create
 
 class UserOut(BaseModel):
     id: int
-    email: str
-    full_name: str
+    username: str
+    firstname: str
     role: Role
 
 

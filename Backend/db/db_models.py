@@ -6,8 +6,8 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, index=True, nullable=False)
-    full_name = Column(String, nullable=False)
+    username = Column(String, unique=True, index=True, nullable=False)
+    firstname = Column(String, nullable=False)
     role = Column(String, nullable=False)  # "client", "engineer", "admin"
     password = Column(String, nullable=False)  # Should be hashed in production
 
