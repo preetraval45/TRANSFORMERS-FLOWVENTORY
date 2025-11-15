@@ -20,7 +20,7 @@ services:
 
   backend:
     build:
-      context: ../Backend
+      context: ../Src/Backend
       dockerfile: Dockerfile
     container_name: flowventory-backend
     ports:
@@ -33,7 +33,7 @@ services:
     networks:
       - flowventory-network
     volumes:
-      - ../Backend:/app
+      - ../Src/Backend:/app
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
       interval: 10s
@@ -43,7 +43,7 @@ services:
 
   frontend:
     build:
-      context: ../Frontend/flowventory-app
+      context: ../Src/Frontend/flowventory-app
       dockerfile: Dockerfile
     container_name: flowventory-frontend
     ports:
@@ -56,7 +56,7 @@ services:
     networks:
       - flowventory-network
     volumes:
-      - ../Frontend/flowventory-app:/app
+      - ../Src/Frontend/flowventory-app:/app
       - /app/node_modules
       - /app/.next
     healthcheck:
