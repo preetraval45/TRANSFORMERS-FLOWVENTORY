@@ -1,231 +1,317 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { mockInventoryData } from '@/data/users';
 
 export default function Shipments() {
   const { user } = useAuth();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [dragActive, setDragActive] = useState(false);
-  const [uploadedFile, setUploadedFile] = useState(null);
+  const [packingSlips, setPackingSlips] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [editingSlip, setEditingSlip] = useState(null);
+  const [formData, setFormData] = useState({
+    our_name: 'Flowventory',
+    our_address: 'University of North Carolina at Charlotte\n9201 University City Blvd\nCharlotte, NC 28223',
+    bill_to: '',
+    ship_to: '',
+    invoice_number: '',
+    date: new Date().toISOString().split('T')[0],
+    due_date: '',
+    ship_via: 'FedEx',
+    order_number: '',
+    qty: '',
+    item_type: '',
+    item_description: ''
+  });
 
-  const sidebarItems = [
-    { name: 'Filters', isExpanded: true },
-    { name: 'Pending', count: null, isFilter: true },
-    { name: 'Received', count: null, isFilter: true },
-    { name: 'Delayed', count: null, isFilter: true },
-    { name: 'Vendor', isDropdown: true },
-  ];
+  const shipViaOptions = ['FedEx', 'UPS', 'USPS', 'DHL', 'Local Delivery', 'Will Call'];
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost/api';
 
-  const handleDrag = (e) => {
+  useEffect(() => {
+    fetchPackingSlips();
+  }, []);
+
+  const fetchPackingSlips = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/shipments/`);
+      if (response.ok) {
+        const data = await response.json();
+        setPackingSlips(data);
+      }
+    } catch (error) {
+      console.error('Error fetching packing slips:', error);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    e.stopPropagation();
-    if (e.type === 'dragenter' || e.type === 'dragover') {
-      setDragActive(true);
-    } else if (e.type === 'dragleave') {
-      setDragActive(false);
+
+    const payload = {
+      our_name: formData.our_name,
+      our_address: formData.our_address,
+      bill_to: formData.bill_to,
+      ship_to: formData.ship_to,
+      invoice_number: formData.invoice_number,
+      invoice_date: formData.date,
+      due_date: formData.due_date || null,
+      ship_via: formData.ship_via,
+      order_number: formData.order_number,
+      qty: parseInt(formData.qty),
+      item_type: formData.item_type,
+      item_desc: formData.item_description
+    };
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/shipments/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (response.ok) {
+        alert('Packing slip created successfully!');
+        setShowForm(false);
+        resetForm();
+        fetchPackingSlips();
+      } else {
+        alert('Error creating packing slip');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error creating packing slip');
     }
   };
 
-  const handleDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      setUploadedFile(e.dataTransfer.files[0]);
-    }
+  const resetForm = () => {
+    setFormData({
+      our_name: 'Flowventory',
+      our_address: 'University of North Carolina at Charlotte\n9201 University City Blvd\nCharlotte, NC 28223',
+      bill_to: '',
+      ship_to: '',
+      invoice_number: '',
+      date: new Date().toISOString().split('T')[0],
+      due_date: '',
+      ship_via: 'FedEx',
+      order_number: '',
+      qty: '',
+      item_type: '',
+      item_description: ''
+    });
+    setEditingSlip(null);
   };
 
-  const handleFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setUploadedFile(e.target.files[0]);
-    }
+  const handleEdit = async (slip) => {
+    setEditingSlip(slip);
+    setFormData({
+      our_name: slip.our_name,
+      our_address: slip.our_address,
+      bill_to: slip.bill_to,
+      ship_to: slip.ship_to,
+      invoice_number: slip.invoice_number,
+      date: slip.invoice_date,
+      due_date: slip.due_date || '',
+      ship_via: slip.ship_via,
+      order_number: slip.order_number || '',
+      qty: slip.qty,
+      item_type: slip.item_type,
+      item_description: slip.item_desc
+    });
+    setShowForm(true);
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'Pending': return 'bg-yellow-100 text-yellow-800';
-      case 'Received': return 'bg-green-100 text-green-800';
-      case 'Delayed': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+  const handleView = (slip) => {
+    alert(`Viewing: ${slip.invoice_number}\nItem: ${slip.item_desc}\nQty: ${slip.qty}`);
+  };
+
+  const handlePrint = (slip) => {
+    window.print();
+  };
+
+  const handleDelete = async (id) => {
+    if (!confirm('Are you sure you want to delete this packing slip?')) return;
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/shipments/${id}`, {
+        method: 'DELETE'
+      });
+      if (response.ok) {
+        alert('Packing slip deleted successfully');
+        fetchPackingSlips();
+      }
+    } catch (error) {
+      console.error('Error deleting:', error);
     }
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <div className="w-64 bg-white border-r border-gray-200 p-6 shadow-sm">
-        <div className="space-y-4">
-          {sidebarItems.map((item, index) => (
-            <div key={index} className="space-y-2">
-              {item.name === 'Filters' ? (
-                <h3 className="font-medium text-gray-900 text-sm">{item.name} ▼</h3>
-              ) : item.isFilter ? (
-                <div className="flex items-center space-x-2 ml-2">
-                  <input type="checkbox" className="rounded border-gray-300" />
-                  <label className="text-sm text-gray-700">{item.name}</label>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl shadow-xl p-8 mb-8 text-white">
+          <h1 className="text-4xl font-bold mb-2 flex items-center">
+            <span className="mr-3">📦</span> Packing Slips
+          </h1>
+          <p className="text-purple-100 text-lg">Create and manage shipment packing slips</p>
+        </div>
+
+        {/* Packing Slip Form - Always Visible */}
+        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden mb-8">
+          <div className="bg-gradient-to-r from-purple-500 to-pink-500 px-8 py-6">
+            <h2 className="text-2xl font-bold text-white flex items-center">
+              <span className="mr-2">✍️</span> {editingSlip ? 'Edit' : 'Create'} Packing Slip
+            </h2>
+            <p className="text-purple-100 mt-1">Fill out the form below</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="p-8">
+            {/* Company Information */}
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b-2 border-purple-200">🏢 Our Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Company Name *</label>
+                  <input type="text" name="our_name" value={formData.our_name} onChange={handleInputChange} required className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:ring focus:ring-purple-200" />
                 </div>
-              ) : item.isDropdown ? (
-                <div className="ml-2">
-                  <select className="w-full text-sm border border-gray-300 rounded px-2 py-1">
-                    <option>{item.name}</option>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Company Address *</label>
+                  <textarea name="our_address" value={formData.our_address} onChange={handleInputChange} required rows="2" className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:ring focus:ring-purple-200" />
+                </div>
+              </div>
+            </div>
+
+            {/* Billing & Shipping */}
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b-2 border-purple-200">📬 Billing & Shipping</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Bill To *</label>
+                  <textarea name="bill_to" value={formData.bill_to} onChange={handleInputChange} required rows="3" className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:ring focus:ring-purple-200" placeholder="Company Name&#10;Address&#10;City, State ZIP" />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Ship To *</label>
+                  <textarea name="ship_to" value={formData.ship_to} onChange={handleInputChange} required rows="3" className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:ring focus:ring-purple-200" placeholder="Company Name&#10;Address&#10;City, State ZIP" />
+                </div>
+              </div>
+            </div>
+
+            {/* Order Details */}
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b-2 border-purple-200">📝 Order Details</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Invoice Number *</label>
+                  <input type="text" name="invoice_number" value={formData.invoice_number} onChange={handleInputChange} required className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:ring focus:ring-purple-200" placeholder="INV-2024-001" />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Date *</label>
+                  <input type="date" name="date" value={formData.date} onChange={handleInputChange} required className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:ring focus:ring-purple-200" />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Due Date</label>
+                  <input type="date" name="due_date" value={formData.due_date} onChange={handleInputChange} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:ring focus:ring-purple-200" />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Ship Via *</label>
+                  <select name="ship_via" value={formData.ship_via} onChange={handleInputChange} required className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:ring focus:ring-purple-200">
+                    {shipViaOptions.map(option => (<option key={option} value={option}>{option}</option>))}
                   </select>
                 </div>
-              ) : null}
-            </div>
-          ))}
-
-          <div className="pt-6">
-            <button className="w-full bg-green-600 text-white py-2 px-4 rounded text-sm font-medium hover:bg-green-700">
-              Export Inventory
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Upload Packing Slip</h1>
-          <button className="bg-green-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-green-700">
-            Upload Packing Slip
-          </button>
-        </div>
-
-        <div className="flex gap-8">
-          {/* Upload Section */}
-          <div className="flex-1">
-            {/* Drag & Drop Area */}
-            <div
-              className={`border-2 border-dashed rounded-lg p-12 text-center mb-6 transition-colors ${
-                dragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-gray-50'
-              }`}
-              onDragEnter={handleDrag}
-              onDragLeave={handleDrag}
-              onDragOver={handleDrag}
-              onDrop={handleDrop}
-            >
-              <div className="text-gray-500">
-                <svg className="mx-auto h-12 w-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                </svg>
-                <p className="text-lg mb-2">Drag & Drop</p>
-                <p className="text-sm mb-4">your files here or</p>
-                <label className="inline-block bg-blue-600 text-white px-4 py-2 rounded cursor-pointer hover:bg-blue-700">
-                  Browse Files
-                  <input type="file" className="hidden" onChange={handleFileChange} />
-                </label>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Order Number</label>
+                  <input type="text" name="order_number" value={formData.order_number} onChange={handleInputChange} className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:ring focus:ring-purple-200" placeholder="ORD-2024-001" />
+                </div>
               </div>
             </div>
 
-            {uploadedFile && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-                <p className="text-green-800 font-medium">File Uploaded:</p>
-                <p className="text-green-700">{uploadedFile.name}</p>
-              </div>
-            )}
-
-            {/* Search Bar */}
+            {/* Items */}
             <div className="mb-6">
-              <div className="relative">
-                <svg className="absolute left-3 top-3 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                <input
-                  type="text"
-                  placeholder="Search"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b-2 border-purple-200">📦 Item Details</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Quantity *</label>
+                  <input type="number" name="qty" value={formData.qty} onChange={handleInputChange} required min="1" className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:ring focus:ring-purple-200" placeholder="0" />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Item Type *</label>
+                  <input type="text" name="item_type" value={formData.item_type} onChange={handleInputChange} required className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:ring focus:ring-purple-200" placeholder="e.g., Electronics" />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Item Description *</label>
+                  <input type="text" name="item_description" value={formData.item_description} onChange={handleInputChange} required className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:ring focus:ring-purple-200" placeholder="Detailed description" />
+                </div>
               </div>
             </div>
 
-            {/* Shipments Table */}
-            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+            {/* Submit Buttons */}
+            <div className="flex items-center justify-end gap-4 pt-4 border-t-2 border-gray-200">
+              {editingSlip && (
+                <button type="button" onClick={resetForm} className="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-400">Cancel Edit</button>
+              )}
+              <button type="submit" className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-3 rounded-lg font-bold hover:from-purple-700 hover:to-pink-700 transform hover:scale-105 shadow-xl">
+                {editingSlip ? '✓ Update Packing Slip' : '✓ Create Packing Slip'}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* Packing Slips Table - Always Below Form */}
+        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
+          <div className="bg-gradient-to-r from-purple-500 to-pink-500 px-8 py-6">
+            <h2 className="text-2xl font-bold text-white flex items-center">
+              <span className="mr-2">📋</span> All Packing Slips
+            </h2>
+            <p className="text-purple-100 mt-1">View, edit, and print packing slips</p>
+          </div>
+
+          <div className="p-8">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">Invoice Number</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">Date</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">Ship To</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">Item</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">Qty</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">Ship Via</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {packingSlips.length === 0 ? (
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Shipment ID
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Vendor
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Received Quantity
-                      </th>
+                      <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
+                        No packing slips found. Create one to get started!
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {mockInventoryData.map((item) => (
-                      <tr key={item.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {item.id}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {item.vendor}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(item.status)}`}>
-                            {item.status}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {item.receivedQuantity || '-'}
+                  ) : (
+                    packingSlips.map((slip) => (
+                      <tr key={slip.id} className="hover:bg-purple-50 transition-colors">
+                        <td className="px-6 py-4 text-sm font-semibold text-purple-600">{slip.invoice_number}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">{slip.invoice_date}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">{slip.ship_to?.split('\n')[0]}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">{slip.item_desc}</td>
+                        <td className="px-6 py-4 text-sm font-semibold text-gray-900">{slip.qty}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">{slip.ship_via}</td>
+                        <td className="px-6 py-4 text-sm">
+                          <div className="flex space-x-2">
+                            <button onClick={() => handleView(slip)} className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-xs font-medium">👁️ View</button>
+                            <button onClick={() => handleEdit(slip)} className="bg-purple-600 text-white px-3 py-1 rounded hover:bg-purple-700 text-xs font-medium">✏️ Edit</button>
+                            <button onClick={() => handlePrint(slip)} className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-xs font-medium">🖨️ Print</button>
+                            <button onClick={() => handleDelete(slip.id)} className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-xs font-medium">🗑️ Delete</button>
+                          </div>
                         </td>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Sidebar */}
-          <div className="w-80">
-            <div className="space-y-6">
-              {/* Upload History */}
-              <div className="bg-white border border-gray-200 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-900 mb-4">Upload History</h3>
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
-                    <span className="text-sm text-gray-700">Tag #1</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="w-2 h-2 bg-green-600 rounded-full"></span>
-                    <span className="text-sm text-gray-700">Tag #2</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="w-2 h-2 bg-red-600 rounded-full"></span>
-                    <span className="text-sm text-gray-700">Tag #4</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Upload Form */}
-              <div className="bg-white border border-gray-200 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-900 mb-4">Upload Details</h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Upload packing file
-                    </label>
-                    <div className="text-sm text-gray-500 mb-2">• Vendor</div>
-                    <div className="text-sm text-gray-500 mb-2">• Project Code</div>
-                  </div>
-
-                  <button className="w-full bg-gray-800 text-white py-2 px-4 rounded text-sm font-medium hover:bg-gray-900">
-                    Submit
-                  </button>
-                </div>
-              </div>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>

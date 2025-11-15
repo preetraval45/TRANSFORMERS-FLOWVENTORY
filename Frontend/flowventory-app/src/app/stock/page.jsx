@@ -8,18 +8,14 @@ export default function Stock() {
     item_id: '',
     sku: '',
     description: '',
-    vendor: '',
     category: '',
     quantity: '',
     zone: '',
     aisle: '',
     rack: '',
     shelf: '',
-    bin: '',
     weight: '',
-    dimensions: '',
-    barcode: '',
-    work_order: ''
+    dimensions: ''
   });
   const [message, setMessage] = useState({ type: '', text: '' });
   const [loading, setLoading] = useState(false);
@@ -38,12 +34,12 @@ export default function Stock() {
     }));
 
     // Auto-generate storage location
-    if (['zone', 'aisle', 'rack', 'shelf', 'bin'].includes(name)) {
-      const { zone, aisle, rack, shelf, bin } = { ...formData, [name]: value };
-      if (zone && aisle && rack && shelf && bin) {
+    if (['zone', 'aisle', 'rack', 'shelf'].includes(name)) {
+      const { zone, aisle, rack, shelf } = { ...formData, [name]: value };
+      if (zone && aisle && rack && shelf) {
         setFormData(prev => ({
           ...prev,
-          storage_location: `${zone}-${aisle}-${rack}-${shelf}-${bin}`
+          storage_location: `${zone}-${aisle}-${rack}-${shelf}`
         }));
       }
     }
@@ -79,18 +75,14 @@ export default function Stock() {
           item_id: '',
           sku: '',
           description: '',
-          vendor: '',
           category: '',
           quantity: '',
           zone: '',
           aisle: '',
           rack: '',
           shelf: '',
-          bin: '',
           weight: '',
-          dimensions: '',
-          barcode: '',
-          work_order: ''
+          dimensions: ''
         });
       } else {
         const error = await response.json();
@@ -184,32 +176,6 @@ export default function Stock() {
                     placeholder="e.g., SKU-2001"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Work Order (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    name="work_order"
-                    value={formData.work_order}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring focus:ring-green-200 transition-all"
-                    placeholder="e.g., WO-2024-001"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Barcode
-                  </label>
-                  <input
-                    type="text"
-                    name="barcode"
-                    value={formData.barcode}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring focus:ring-green-200 transition-all font-mono"
-                    placeholder="e.g., BC1234567"
-                  />
-                </div>
               </div>
             </div>
 
@@ -250,19 +216,6 @@ export default function Stock() {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Vendor
-                  </label>
-                  <input
-                    type="text"
-                    name="vendor"
-                    value={formData.vendor}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring focus:ring-green-200 transition-all"
-                    placeholder="e.g., Digikey, Mouser"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Weight
                   </label>
                   <input
@@ -295,7 +248,7 @@ export default function Stock() {
               <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b-2 border-green-200">
                 📍 Quantity & Warehouse Location
               </h3>
-              <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 <div className="col-span-2">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Quantity *
@@ -364,19 +317,6 @@ export default function Stock() {
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring focus:ring-green-200 transition-all"
                     placeholder="S1"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Bin
-                  </label>
-                  <input
-                    type="text"
-                    name="bin"
-                    value={formData.bin}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring focus:ring-green-200 transition-all"
-                    placeholder="BIN-001"
                   />
                 </div>
               </div>

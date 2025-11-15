@@ -4,90 +4,107 @@
 
 Use these credentials to test the Flowventory application:
 
-Admin Users (Full Access)
+### Admin Users (Full Access)
 - **Username**: `Preet`
   **Password**: `P@ss123!`
   **Role**: Admin
-  **Access**: Dashboard, Inventory, Shipments, Uploads, Admin Panel
+  **Access**: All pages including User Management
 
 - **Username**: `Carlotta`
   **Password**: `C@rl456@`
   **Role**: Admin
-  **Access**: Dashboard, Inventory, Shipments, Uploads, Admin Panel
+  **Access**: All pages including User Management
 
+### Engineer Users (Technical Access)
 - **Username**: `Yana`
   **Password**: `Y@na789#`
-  **Role**: Admin
-  **Access**: Dashboard, Inventory, Shipments, Uploads, Admin Panel
+  **Role**: Engineer
+  **Access**: Dashboard, Stock, Pick, Shipments, Inventory
 
-#Engineer User
 - **Username**: `Dany`
   **Password**: `D@ny012$`
   **Role**: Engineer
-  **Access**: Dashboard, Inventory, Shipments, Uploads (No Admin Panel)
+  **Access**: Dashboard, Stock, Pick, Shipments, Inventory
 
-Client User
+- **Username**: `Mike`
+  **Password**: `M!ke890*`
+  **Role**: Engineer
+  **Access**: Dashboard, Stock, Pick, Shipments, Inventory
+
+- **Username**: `Emily`
+  **Password**: `Em!ly234#`
+  **Role**: Engineer
+  **Access**: Dashboard, Stock, Pick, Shipments, Inventory
+
+### Manager Users (Management Access)
 - **Username**: `Jack`
   **Password**: `J@ck345%`
-  **Role**: Client
-  **Access**: Dashboard only (Limited access)
+  **Role**: Manager
+  **Access**: Dashboard, Stock, Pick, Shipments, Inventory
+
+- **Username**: `Sarah`
+  **Password**: `S@rah567&`
+  **Role**: Manager
+  **Access**: Dashboard, Stock, Pick, Shipments, Inventory
+
+- **Username**: `Alex`
+  **Password**: `Al3x567$`
+  **Role**: Manager
+  **Access**: Dashboard, Stock, Pick, Shipments, Inventory
 
 ## Navigation Guide
 
 1. **Login Page**: Enter username and password to access the system
-2. **Dashboard**: Overview with statistics and quick actions
-3. **Inventory**: Manage inventory items with filtering and search
-4. **Shipments**: Upload packing slips and track shipments
-5. **Uploads**: Redirects to Shipments page
-6. **Admin**: User management (Admin users only)
+2. **Dashboard**: Overview with statistics, recent activity, and quick actions
+3. **Stock**: Add new items to inventory with warehouse location tracking
+4. **Pick**: Search and pick items from inventory for orders
+5. **Shipments**: Create and manage packing slips with CRUD operations
+6. **Inventory**: View all inventory items with search and filter capabilities
+7. **User Management**: Manage users, roles, and permissions (Admin only)
 
-## Features to Test
+## Features by Role
 
-Login Page
-- ✅ Login with any of the above credentials
-- ✅ Password reset functionality (shows demo message)
-- ✅ Error handling for invalid credentials
+### Admin
+- ✅ Full access to all pages
+- ✅ User Management (Create, Read, Update, Delete users)
+- ✅ Assign pages to users
+- ✅ Change user roles
+- ✅ Manage inventory, shipments, and orders
 
-Dashboard
-- ✅ Statistics cards (Total Items, Items Received, Pending Shipments, Flagged Issues)
-- ✅ Recent Activity feed
-- ✅ Upload Packing Slip form
-- ✅ Sidebar with filters and action buttons
+### Engineer
+- ✅ Dashboard access
+- ✅ Add/edit inventory items
+- ✅ Pick items from inventory
+- ✅ Create/manage packing slips
+- ✅ View all inventory
+- ❌ No User Management access
 
-Inventory
-- ✅ Searchable inventory table
-- ✅ Status filtering (Pending, Received, Delayed)
-- ✅ Item details modal (click on any row)
-- ✅ Change history sidebar
-- ✅ Export functionality
+### Manager
+- ✅ Dashboard access
+- ✅ View and manage inventory
+- ✅ Create/manage packing slips
+- ✅ Pick items from inventory
+- ✅ Add new stock items
+- ❌ No User Management access
 
-Shipments
-- ✅ Drag & drop file upload
-- ✅ File upload indication
-- ✅ Shipment tracking table
-- ✅ Upload history sidebar
+## Database Information
 
-Admin Panel (Admin Only)
-- ✅ User management table (shows admin users only)
-- ✅ Add new user functionality
-- ✅ Auto-generated passwords
-- ✅ Audit logs
-- ✅ System settings
+- **Total Users**: 9
+- **Total Inventory Items**: 100 (with fake data)
+- **Total Packing Slips**: 3
+- **Warehouse Zones**: A, B, C, D, E
+- **Item Categories**: Network Equipment, Servers, Storage, Semiconductors, PCB Components, Passive Components, Cables, Infrastructure
 
-Navigation
-- ✅ Role-based navigation (different menus for different roles)
-- ✅ User profile display in header
-- ✅ Logout functionality
-- ✅ Active page highlighting
+## Access the Application
 
-## Access Control
+- **Main URL**: http://localhost:4000
+- **Backend API**: http://localhost:4002
+- **Frontend Dev**: http://localhost:4003
+- **Database**: PostgreSQL on port 4001
 
-- **Clients**: Can only access Dashboard
-- **Engineers**: Can access Dashboard, Inventory, Shipments, Uploads
-- **Admins**: Can access all pages including Admin panel
+## Color Scheme
 
-Color Scheme
-- **Primary**: Blue (#2563eb)
+- **Primary**: Blue (#2563eb) & Purple (#7c3aed)
 - **Success**: Green (#16a34a)
 - **Warning**: Red (#dc2626)
 - **Background**: White (#ffffff)
@@ -95,8 +112,16 @@ Color Scheme
 ## Start the Application
 
 ```bash
-cd Frontend/flowventory-app
-npm run dev
+cd Docker
+docker-compose up -d
 ```
 
-Then visit: `http://localhost:3000`
+Then visit: `http://localhost:4000`
+
+## Seeding the Database
+
+To reset and reseed the database with fake data:
+
+```bash
+docker exec flowventory-backend python seed_data.py
+```

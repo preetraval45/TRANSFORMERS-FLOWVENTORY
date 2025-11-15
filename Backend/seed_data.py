@@ -23,13 +23,15 @@ def seed_database():
         print("Creating users...")
         # Create users
         users_data = [
-            {"email": "preet@flowventory.com", "full_name": "Preet", "role": "admin", "password": "P@ss123!"},
-            {"email": "carlotta@flowventory.com", "full_name": "Carlotta", "role": "admin", "password": "C@rl456@"},
-            {"email": "yana@flowventory.com", "full_name": "Yana", "role": "admin", "password": "Y@na789#"},
-            {"email": "dany@flowventory.com", "full_name": "Dany", "role": "engineer", "password": "D@ny012$"},
-            {"email": "jack@flowventory.com", "full_name": "Jack", "role": "client", "password": "J@ck345%"},
-            {"email": "sarah@client.com", "full_name": "Sarah Johnson", "role": "client", "password": "password123"},
-            {"email": "mike@client.com", "full_name": "Mike Chen", "role": "client", "password": "password123"},
+            {"username": "Preet", "firstname": "Preet", "role": "admin", "password": "P@ss123!"},
+            {"username": "Carlotta", "firstname": "Carlotta", "role": "admin", "password": "C@rl456@"},
+            {"username": "Yana", "firstname": "Yana", "role": "engineer", "password": "Y@na789#"},
+            {"username": "Dany", "firstname": "Dany", "role": "engineer", "password": "D@ny012$"},
+            {"username": "Jack", "firstname": "Jack", "role": "manager", "password": "J@ck345%"},
+            {"username": "Sarah", "firstname": "Sarah Johnson", "role": "manager", "password": "S@rah567&"},
+            {"username": "Mike", "firstname": "Mike Chen", "role": "engineer", "password": "M!ke890*"},
+            {"username": "Emily", "firstname": "Emily Davis", "role": "engineer", "password": "Em!ly234#"},
+            {"username": "Alex", "firstname": "Alex Martinez", "role": "manager", "password": "Al3x567$"},
         ]
 
         users = []
@@ -88,42 +90,54 @@ def seed_database():
 
         print(f"Created {len(orders)} orders")
 
-        # Create shipments
+        # Create shipments (packing slips)
         print("Creating shipments...")
-        today = datetime.now()
+        today = datetime.now().date()
         shipments_data = [
             {
-                "vendor": "Cisco",
-                "carrier": "FedEx",
-                "tracking_number": "1Z999AA10123456784",
-                "expected_delivery_date": (today + timedelta(days=2)).strftime("%Y-%m-%d"),
-                "order_id": orders[0].id,
-                "status": "pending",
-                "items": [
-                    {"item_id": "SWITCH-001", "description": "Cisco Catalyst 9300", "expected_qty": 5, "received_qty": 0},
-                ]
+                "our_name": "Flowventory",
+                "our_address": "University of North Carolina at Charlotte\n9201 University City Blvd\nCharlotte, NC 28223",
+                "bill_to": "Cisco Systems Inc\n123 Tech Drive\nSan Jose, CA 95134",
+                "ship_to": "UNCC Main Campus\n9201 University City Blvd\nCharlotte, NC 28223",
+                "invoice_number": "INV-2024-001",
+                "invoice_date": today,
+                "due_date": today + timedelta(days=30),
+                "ship_via": "FedEx",
+                "order_number": "ORD-2024-001",
+                "qty": 5,
+                "item_type": "Network Equipment",
+                "item_desc": "Cisco Catalyst 9300 48-Port Switch",
+                "order_id": orders[0].id
             },
             {
-                "vendor": "Dell",
-                "carrier": "UPS",
-                "tracking_number": "1Z999BB20123456789",
-                "expected_delivery_date": (today - timedelta(days=1)).strftime("%Y-%m-%d"),
-                "order_id": orders[1].id,
-                "status": "partially_received",
-                "items": [
-                    {"item_id": "SERVER-001", "description": "Dell PowerEdge R740", "expected_qty": 3, "received_qty": 2},
-                ]
+                "our_name": "Flowventory",
+                "our_address": "University of North Carolina at Charlotte\n9201 University City Blvd\nCharlotte, NC 28223",
+                "bill_to": "Dell Technologies\n456 Server Lane\nAustin, TX 78701",
+                "ship_to": "UNCC Server Room\n9201 University City Blvd\nCharlotte, NC 28223",
+                "invoice_number": "INV-2024-002",
+                "invoice_date": today - timedelta(days=2),
+                "due_date": today + timedelta(days=28),
+                "ship_via": "UPS Ground",
+                "order_number": "ORD-2024-002",
+                "qty": 3,
+                "item_type": "Servers",
+                "item_desc": "Dell PowerEdge R740 Server",
+                "order_id": orders[1].id
             },
             {
-                "vendor": "Cisco",
-                "carrier": "FedEx",
-                "tracking_number": "1Z999CC30123456790",
-                "expected_delivery_date": (today - timedelta(days=5)).strftime("%Y-%m-%d"),
-                "order_id": orders[2].id,
-                "status": "received",
-                "items": [
-                    {"item_id": "AP-001", "description": "Cisco Meraki MR46", "expected_qty": 10, "received_qty": 10},
-                ]
+                "our_name": "Flowventory",
+                "our_address": "University of North Carolina at Charlotte\n9201 University City Blvd\nCharlotte, NC 28223",
+                "bill_to": "Cisco Systems Inc\n123 Tech Drive\nSan Jose, CA 95134",
+                "ship_to": "UNCC Network Closet\n9201 University City Blvd\nCharlotte, NC 28223",
+                "invoice_number": "INV-2024-003",
+                "invoice_date": today - timedelta(days=7),
+                "due_date": today + timedelta(days=23),
+                "ship_via": "FedEx Express",
+                "order_number": "ORD-2024-003",
+                "qty": 10,
+                "item_type": "Network Equipment",
+                "item_desc": "Cisco Meraki MR46 Access Point",
+                "order_id": orders[2].id
             },
         ]
 
@@ -141,53 +155,51 @@ def seed_database():
 
         # Create inventory items
         print("Creating inventory items...")
-        inventory_data = [
-            {
-                "item_id": "SWITCH-001",
-                "description": "Cisco Catalyst 9300 48-Port Switch",
-                "vendor": "Cisco",
-                "quantity": 5,
-                "storage_location": "Warehouse A - Shelf 3",
-                "status": "pending_inspection",
-                "last_shipment_id": shipments[0].id
-            },
-            {
-                "item_id": "SERVER-001",
-                "description": "Dell PowerEdge R740 Server",
-                "vendor": "Dell",
-                "quantity": 2,
-                "storage_location": "Server Room - Rack 1",
-                "status": "ready_for_deployment",
-                "last_shipment_id": shipments[1].id
-            },
-            {
-                "item_id": "AP-001",
-                "description": "Cisco Meraki MR46 Access Point",
-                "vendor": "Cisco",
-                "quantity": 10,
-                "storage_location": "Warehouse B - Shelf 1",
-                "status": "installed",
-                "last_shipment_id": shipments[2].id
-            },
-            {
-                "item_id": "ROUTER-001",
-                "description": "Cisco ISR 4331 Router",
-                "vendor": "Cisco",
-                "quantity": 2,
-                "storage_location": "Warehouse A - Shelf 5",
-                "status": "pending_inspection",
-                "last_shipment_id": None
-            },
-            {
-                "item_id": "RACK-001",
-                "description": "StarTech 42U Server Rack",
-                "vendor": "StarTech",
-                "quantity": 2,
-                "storage_location": "Receiving Dock",
-                "status": "ready_for_deployment",
-                "last_shipment_id": shipments[1].id
-            },
+
+        # Base inventory items
+        base_inventory = [
+            {"item_id": "SWITCH-001", "description": "Cisco Catalyst 9300 48-Port Switch", "vendor": "Cisco", "category": "Network Equipment", "sku": "C9300-48P", "quantity": 5, "zone": "A", "aisle": "1", "rack": "3", "shelf": "2", "storage_location": "A-1-3-2", "status": "pending_inspection"},
+            {"item_id": "SERVER-001", "description": "Dell PowerEdge R740 Server", "vendor": "Dell", "category": "Servers", "sku": "PE-R740", "quantity": 2, "zone": "B", "aisle": "2", "rack": "1", "shelf": "1", "storage_location": "B-2-1-1", "status": "ready_for_deployment"},
+            {"item_id": "AP-001", "description": "Cisco Meraki MR46 Access Point", "vendor": "Cisco", "category": "Network Equipment", "sku": "MR46-HW", "quantity": 10, "zone": "A", "aisle": "3", "rack": "2", "shelf": "1", "storage_location": "A-3-2-1", "status": "installed"},
+            {"item_id": "ROUTER-001", "description": "Cisco ISR 4331 Router", "vendor": "Cisco", "category": "Network Equipment", "sku": "ISR4331", "quantity": 2, "zone": "A", "aisle": "1", "rack": "5", "shelf": "3", "storage_location": "A-1-5-3", "status": "pending_inspection"},
+            {"item_id": "RACK-001", "description": "StarTech 42U Server Rack", "vendor": "StarTech", "category": "Infrastructure", "sku": "RK42U", "quantity": 2, "zone": "C", "aisle": "1", "rack": "1", "shelf": "1", "storage_location": "C-1-1-1", "status": "ready_for_deployment"},
         ]
+
+        # Generate large quantity of fake inventory items
+        vendors = ["Cisco", "Dell", "HP", "Lenovo", "Aruba", "Juniper", "Fortinet", "Palo Alto", "VMware", "Microsoft"]
+        categories = ["Network Equipment", "Servers", "Storage", "Semiconductors", "PCB Components", "Passive Components", "Cables", "Infrastructure"]
+        statuses = ["pending_inspection", "ready_for_deployment", "installed"]
+        zones = ["A", "B", "C", "D", "E"]
+
+        inventory_data = base_inventory.copy()
+
+        # Add 95 more items for a total of 100
+        for i in range(6, 101):
+            vendor = random.choice(vendors)
+            category = random.choice(categories)
+            status = random.choice(statuses)
+            zone = random.choice(zones)
+            aisle = str(random.randint(1, 5))
+            rack = str(random.randint(1, 10))
+            shelf = str(random.randint(1, 5))
+
+            item = {
+                "item_id": f"ITEM-{i:04d}",
+                "description": f"{vendor} {category} Component {i}",
+                "vendor": vendor,
+                "category": category,
+                "sku": f"SKU-{i:04d}",
+                "quantity": random.randint(1, 50),
+                "zone": zone,
+                "aisle": aisle,
+                "rack": rack,
+                "shelf": shelf,
+                "storage_location": f"{zone}-{aisle}-{rack}-{shelf}",
+                "status": status,
+                "weight": f"{random.randint(1, 100)}kg",
+                "dimensions": f"{random.randint(10, 50)}x{random.randint(10, 50)}x{random.randint(10, 50)}cm",
+            }
+            inventory_data.append(item)
 
         inventory_items = []
         for item_data in inventory_data:

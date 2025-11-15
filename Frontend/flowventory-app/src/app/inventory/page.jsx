@@ -179,18 +179,21 @@ export default function Inventory() {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Status
                       </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {loading ? (
                       <tr>
-                        <td colSpan="7" className="px-6 py-4 text-center text-sm text-gray-500">
+                        <td colSpan="8" className="px-6 py-4 text-center text-sm text-gray-500">
                           Loading inventory...
                         </td>
                       </tr>
                     ) : filteredData.length === 0 ? (
                       <tr>
-                        <td colSpan="7" className="px-6 py-4 text-center text-sm text-gray-500">
+                        <td colSpan="8" className="px-6 py-4 text-center text-sm text-gray-500">
                           No inventory items found
                         </td>
                       </tr>
@@ -198,8 +201,7 @@ export default function Inventory() {
                       paginatedData.map((item) => (
                         <tr
                           key={item.id}
-                          className="hover:bg-gray-50 cursor-pointer"
-                          onClick={() => setShowDetails(item)}
+                          className="hover:bg-gray-50"
                         >
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
                             {item.sku || item.item_id}
@@ -226,13 +228,27 @@ export default function Inventory() {
                               {item.status?.replace(/_/g, ' ')}
                             </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span
-                              className="cursor-pointer text-blue-600"
-                              onClick={(event) => handleEditClick(item, event)}
-                            >
-                              Edit
-                            </span>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm">
+                            <div className="flex space-x-2">
+                              <button
+                                onClick={(event) => { event.stopPropagation(); setShowDetails(item); }}
+                                className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-xs font-medium"
+                              >
+                                👁️ View
+                              </button>
+                              <button
+                                onClick={(event) => handleEditClick(item, event)}
+                                className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-xs font-medium"
+                              >
+                                ✏️ Edit
+                              </button>
+                              <button
+                                onClick={(event) => { event.stopPropagation(); setEditingItem(item); handleDelete(); }}
+                                className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-xs font-medium"
+                              >
+                                🗑️ Delete
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))

@@ -7,7 +7,6 @@ export default function Pick() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedItem, setSelectedItem] = useState(null);
   const [pickQuantity, setPickQuantity] = useState('');
-  const [workOrder, setWorkOrder] = useState('');
   const [message, setMessage] = useState({ type: '', text: '' });
   const [loading, setLoading] = useState(false);
 
@@ -92,7 +91,6 @@ export default function Pick() {
         setSelectedItem(null);
         setSearchTerm('');
         setPickQuantity('');
-        setWorkOrder('');
       } else {
         setMessage({ type: 'error', text: 'Failed to pick item' });
       }
@@ -150,8 +148,8 @@ export default function Pick() {
               <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b-2 border-blue-200">
                 🔍 Part Identification & Search
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="md:col-span-2">
+              <div className="grid grid-cols-1 gap-4">
+                <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Part Number / SKU / Barcode *
                   </label>
@@ -173,18 +171,6 @@ export default function Pick() {
                       🔍 Search
                     </button>
                   </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Work Order (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    value={workOrder}
-                    onChange={(e) => setWorkOrder(e.target.value)}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring focus:ring-blue-200 transition-all"
-                    placeholder="WO-2024-001"
-                  />
                 </div>
               </div>
             </div>

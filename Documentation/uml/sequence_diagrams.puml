@@ -1,0 +1,312 @@
+@startuml Flowventory Sequence Diagrams
+
+title Flowventory - Sequence Diagrams
+
+/' User Login Sequence '/
+@startuml User_Login_Sequence
+title User Login Sequence (Normal Case)
+
+actor User
+participant "Login Page" as Login
+participant "AuthContext" as Auth
+participant "LocalStorage" as Storage
+participant "Dashboard" as Dash
+
+User -> Login: Enter credentials\n(username, password)
+Login -> Auth: login(username, password)
+Auth -> Storage: Check stored users
+Storage --> Auth: Return user data
+Auth -> Auth: Validate credentials
+alt Valid Credentials
+    Auth -> Storage: Store session
+    Storage --> Auth: Session stored
+    Auth --> Login: Authentication success
+    Login -> Dash: Redirect to /dashboard
+    Dash --> User: Display dashboard with\nrole-based navigation
+else Invalid Credentials
+    Auth --> Login: Authentication failed
+    Login --> User: Display error message\n"Invalid username or password"
+end
+
+@enduml
+
+/' User Login Error Case '/
+@startuml User_Login_Error
+title User Login Sequence (Error Case - Invalid Credentials)
+
+actor User
+participant "Login Page" as Login
+participant "AuthContext" as Auth
+participant "LocalStorage" as Storage
+
+User -> Login: Enter credentials\n(wrong password)
+Login -> Auth: login(username, wrongPassword)
+Auth -> Storage: Check stored users
+Storage --> Auth: Return user data
+Auth -> Auth: Validate credentials
+Auth --> Login: Authentication failed\n(credentials mismatch)
+Login --> User: Display error message\n"Invalid username or password"
+note right of User
+    User remains on
+    login page
+end note
+
+@enduml
+
+/' Add Inventory Item Sequence '/
+@startuml Add_Inventory_Sequence
+title Add Inventory Item Sequence (Normal Case)
+
+actor Engineer
+participant "Stock Page" as Stock
+participant "API Client" as API
+participant "FastAPI Backend" as Backend
+participant "Database" as DB
+
+Engineer -> Stock: Fill item details\n(Item ID, Description,\nQuantity, Location)
+Stock -> Stock: Validate required fields
+Stock -> API: POST /api/inventory/\n{item_id, description, quantity, ...}
+API -> Backend: HTTP POST request
+Backend -> Backend: Validate input data
+Backend -> DB: INSERT INTO inventory_items\n(item_id, description, quantity, ...)
+DB --> Backend: Return created item\n{id: 108, item_id: "TEST-001", ...}
+Backend --> API: 201 Created (JSON)
+API --> Stock: Success response
+Stock --> Engineer: Display success message\n"Item added to inventory successfully!"
+Stock -> Stock: Reset form fields
+
+@enduml
+
+/' Add Inventory Error Case '/
+@startuml Add_Inventory_Error
+title Add Inventory Item Sequence (Error Case - Duplicate Item ID)
+
+actor Engineer
+participant "Stock Page" as Stock
+participant "API Client" as API
+participant "FastAPI Backend" as Backend
+participant "Database" as DB
+
+Engineer -> Stock: Fill item details\n(existing Item ID: "TEST-001")
+Stock -> Stock: Validate required fields
+Stock -> API: POST /api/inventory/\n{item_id: "TEST-001", ...}
+API -> Backend: HTTP POST request
+Backend -> Backend: Validate input data
+Backend -> DB: INSERT INTO inventory_items\n(item_id: "TEST-001", ...)
+DB --> Backend: Error: duplicate key\nviolates unique constraint
+Backend --> API: 400 Bad Request\n{detail: "Item ID already exists"}
+API --> Stock: Error response
+Stock --> Engineer: Display error message\n"Item ID already exists"
+note right of Engineer
+    Item not added,
+    Engineer can modify
+    and retry
+end note
+
+@enduml
+
+/' Pick Inventory Sequence '/
+@startuml Pick_Inventory_Sequence
+title Pick Inventory Sequence (Normal Case)
+
+actor Engineer
+participant "Pick Page" as Pick
+participant "API Client" as API
+participant "FastAPI Backend" as Backend
+participant "Database" as DB
+
+Engineer -> Pick: Enter item identifier\n(Item ID: "TEST-001")
+Pick -> API: GET /api/inventory?search=TEST-001
+API -> Backend: HTTP GET request
+Backend -> DB: SELECT * FROM inventory_items\nWHERE item_id='TEST-001'
+DB --> Backend: Return item details\n{id: 108, quantity: 50, ...}
+Backend --> API: 200 OK (JSON)
+API --> Pick: Item found
+Pick --> Engineer: Display item details\nCurrent quantity: 50\nLocation: A-A1-R01-S1-BIN-001
+
+Engineer -> Pick: Enter pick quantity: 10
+Pick -> Pick: Validate\n(10 <= 50)
+alt Valid Quantity
+    Pick -> API: PUT /api/inventory/108\n{quantity: 40}
+    API -> Backend: HTTP PUT request
+    Backend -> DB: UPDATE inventory_items\nSET quantity=40\nWHERE id=108
+    DB --> Backend: Updated item\n{id: 108, quantity: 40, ...}
+    Backend --> API: 200 OK (JSON)
+    API --> Pick: Update success
+    Pick --> Engineer: Display success message\n"Successfully picked 10 units"
+    Pick -> Pick: Reset form
+else Invalid Quantity (exceeds available)
+    Pick --> Engineer: Display error message\n"Cannot pick more items\nthan available in stock"
+end
+
+@enduml
+
+/' Pick Inventory Error Case '/
+@startuml Pick_Inventory_Error
+title Pick Inventory Sequence (Error Case - Quantity Exceeds Available)
+
+actor Engineer
+participant "Pick Page" as Pick
+
+Engineer -> Pick: Item details displayed\nCurrent quantity: 50
+Engineer -> Pick: Enter pick quantity: 100\n(exceeds available)
+Pick -> Pick: Validate\n(100 > 50) ✗
+Pick --> Engineer: Display validation error\n"Cannot pick more items\nthan available in stock"
+note right of Engineer
+    No API call made,
+    inventory unchanged
+end note
+
+@enduml
+
+/' Item Not Found Error '/
+@startuml Item_Not_Found_Error
+title Pick Inventory Sequence (Error Case - Item Not Found)
+
+actor Engineer
+participant "Pick Page" as Pick
+participant "API Client" as API
+participant "FastAPI Backend" as Backend
+participant "Database" as DB
+
+Engineer -> Pick: Enter item identifier\n(Item ID: "NONEXISTENT-999")
+Pick -> API: GET /api/inventory?search=NONEXISTENT-999
+API -> Backend: HTTP GET request
+Backend -> DB: SELECT * FROM inventory_items\nWHERE item_id='NONEXISTENT-999'
+DB --> Backend: No results found
+Backend --> API: 404 Not Found\n{detail: "Item not found"}
+API --> Pick: Error response
+Pick --> Engineer: Display error message\n"Item not found"
+note right of Engineer
+    Pick quantity field
+    remains disabled
+end note
+
+@enduml
+
+/' View Inventory with Pagination '/
+@startuml View_Inventory_Pagination
+title View Inventory with Pagination Sequence
+
+actor User
+participant "Inventory Page" as Inventory
+participant "API Client" as API
+participant "FastAPI Backend" as Backend
+participant "Database" as DB
+
+User -> Inventory: Navigate to /inventory
+Inventory -> API: GET /api/inventory/
+API -> Backend: HTTP GET request
+Backend -> DB: SELECT * FROM inventory_items\nORDER BY created_at DESC
+DB --> Backend: Return all 107 items
+Backend --> API: 200 OK\n(JSON array of 107 items)
+API --> Inventory: All inventory data
+Inventory -> Inventory: Calculate pagination\n(10 items per page,\n11 total pages)
+Inventory --> User: Display page 1\n(items 1-10)
+Inventory --> User: Show pagination controls\nPrevious (disabled) | Next
+
+User -> Inventory: Click "Next" button
+Inventory -> Inventory: Update page state\nto page 2
+Inventory --> User: Display page 2\n(items 11-20)
+Inventory --> User: Previous (enabled) | Next
+
+User -> Inventory: Click item "View Details"
+Inventory --> User: Display modal popup\nwith complete item information
+
+@enduml
+
+/' Create Shipment Sequence '/
+@startuml Create_Shipment_Sequence
+title Create Shipment Sequence
+
+actor Engineer
+participant "Shipments Page" as Shipments
+participant "API Client" as API
+participant "FastAPI Backend" as Backend
+participant "Database" as DB
+participant "File Storage" as Storage
+
+Engineer -> Shipments: Click "Create Shipment"
+Shipments --> Engineer: Display shipment form
+
+Engineer -> Shipments: Fill shipment details\n(Carrier: FedEx,\nTracking: 1234567890)
+Engineer -> Shipments: Drag & drop packing slip file
+Shipments -> Shipments: Validate file type\n(.pdf, .jpg, .png)
+
+Engineer -> Shipments: Click "Create Shipment"
+Shipments -> Storage: Upload packing slip file
+Storage --> Shipments: Return file path
+Shipments -> API: POST /api/shipments/\n{carrier, tracking, file_path, ...}
+API -> Backend: HTTP POST request
+Backend -> DB: INSERT INTO shipments\n(carrier, tracking, status='pending', ...)
+DB --> Backend: Return created shipment\n{id: 25, status: "pending", ...}
+Backend --> API: 201 Created (JSON)
+API --> Shipments: Success response
+Shipments --> Engineer: Display success message\n"Shipment created successfully"
+Shipments -> Shipments: Refresh shipment list
+Shipments --> Engineer: Show new shipment in table
+
+@enduml
+
+/' Admin User Management Sequence '/
+@startuml Admin_User_Management
+title Admin User Management Sequence
+
+actor Admin
+participant "Admin Page" as AdminPage
+participant "API Client" as API
+participant "FastAPI Backend" as Backend
+participant "Database" as DB
+
+Admin -> AdminPage: Navigate to /admin
+AdminPage -> API: GET /api/users/
+API -> Backend: HTTP GET request
+Backend -> DB: SELECT id, username, role, status\nFROM users
+DB --> Backend: Return all users\n(without passwords)
+Backend --> API: 200 OK (JSON)
+API --> AdminPage: User list data
+AdminPage --> Admin: Display user table
+
+Admin -> AdminPage: Click "Add New User"
+AdminPage --> Admin: Display user creation form
+
+Admin -> AdminPage: Fill user details\n(username, password, role)
+AdminPage -> API: POST /api/users/\n{username, password, role, status}
+API -> Backend: HTTP POST request
+Backend -> Backend: Hash password\n(TODO: implement bcrypt)
+Backend -> DB: INSERT INTO users\n(username, hashed_password, role, ...)
+DB --> Backend: Return created user\n{id: 15, username, role, ...}
+Backend --> API: 201 Created (JSON)
+API --> AdminPage: Success response
+AdminPage --> Admin: Display success message\n"User created successfully"
+AdminPage -> AdminPage: Refresh user list
+
+@enduml
+
+/' Authorization Error Sequence '/
+@startuml Authorization_Error
+title Authorization Error Sequence (Non-Admin Access to Admin Page)
+
+actor Engineer
+participant "Browser" as Browser
+participant "Admin Page" as AdminPage
+participant "AuthContext" as Auth
+participant "Dashboard" as Dash
+
+Engineer -> Browser: Navigate to /admin URL
+Browser -> AdminPage: Load /admin page
+AdminPage -> Auth: Check user role
+Auth --> AdminPage: User role: "engineer"\n(not admin)
+AdminPage -> AdminPage: Authorization check failed
+AdminPage -> Browser: Redirect to /dashboard
+Browser -> Dash: Navigate to /dashboard
+Dash --> Engineer: Display dashboard
+Dash --> Engineer: Show error message\n"You don't have permission\nto access this page"
+note right of Engineer
+    Engineer cannot
+    access admin functions
+end note
+
+@enduml
+
+@enduml
