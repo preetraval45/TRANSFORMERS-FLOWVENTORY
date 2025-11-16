@@ -1,0 +1,687 @@
+@startuml User Login Sequence - Normal Flow
+
+title UC-1: User Login - Normal Flow
+
+actor User
+participant "Login Page" as LP
+participant "AuthContext" as AC
+participant "API Service" as API
+participant "FastAPI Backend" as Backend
+database PostgreSQL as DB
+
+User -> LP: Enter credentials\n(username, password)
+User -> LP: Click "Sign In"
+activate LP
+
+LP -> AC: login(username, password)
+activate AC
+
+AC -> API: POST /users/authenticate
+activate API
+
+API -> Backend: authenticate_user(username, password)
+activate Backend
+
+Backend -> DB: SELECT * FROM users\nWHERE username = ?
+activate DB
+DB --> Backend: User record
+deactivate DB
+
+Backend -> Backend: Verify password\n(bcrypt.checkpw)
+Backend --> API: {user_data, token}
+deactivate Backend
+
+API --> AC: {success: true, user, token}
+deactivate API
+
+AC -> AC: Store user in state
+AC -> AC: Save to localStorage
+
+AC --> LP: Login successful
+deactivate AC
+
+LP -> LP: Redirect to /dashboard
+LP --> User: Show dashboard
+deactivate LP
+
+@enduml
+
+@startuml User Login Sequence - Error Flow
+
+title UC-1E: User Login - Error Flow (Invalid Credentials)
+
+actor User
+participant "Login Page" as LP
+participant "AuthContext" as AC
+participant "API Service" as API
+participant "FastAPI Backend" as Backend
+database PostgreSQL as DB
+
+User -> LP: Enter credentials\n(wrong password)
+User -> LP: Click "Sign In"
+activate LP
+
+LP -> AC: login(username, password)
+activate AC
+
+AC -> API: POST /users/authenticate
+activate API
+
+API -> Backend: authenticate_user(username, password)
+activate Backend
+
+Backend -> DB: SELECT * FROM users\nWHERE username = ?
+activate DB
+DB --> Backend: User record (or null)
+deactivate DB
+
+Backend -> Backend: Verify password\n(bcrypt.checkpw)
+note right: Password mismatch detected
+
+Backend --> API: {error: "Invalid credentials"}
+deactivate Backend
+
+API --> AC: {success: false, error}
+deactivate API
+
+AC --> LP: Login failed
+deactivate AC
+
+LP -> LP: Display error message\n"Invalid username or password"
+LP --> User: Show error state\n(user remains on login page)
+deactivate LP
+
+@enduml
+
+@startuml Add Inventory Item - Normal Flow
+
+title UC-10: Add Inventory Item - Normal Flow
+
+actor User
+participant "Inventory Page" as IP
+participant "API Service" as API
+participant "Inventory Router" as Router
+database PostgreSQL as DB
+
+User -> IP: Click "Add New Item"
+activate IP
+IP -> IP: Show add form
+
+User -> IP: Fill item details\n(item_id, sku, quantity, location)
+User -> IP: Click "Save"
+
+IP -> IP: Validate form data
+note right: Check required fields\nValidate quantity > 0
+
+IP -> API: POST /inventory\n{item_data}
+activate API
+
+API -> Router: add_inventory(item: InventoryItemIn)
+activate Router
+
+Router -> Router: Validate schema\n(Pydantic validation)
+
+Router -> DB: INSERT INTO inventory_items\nVALUES (...)
+activate DB
+DB --> Router: New item record
+deactivate DB
+
+Router --> API: InventoryItemOut\n{id, item_id, ...}
+deactivate Router
+
+API --> IP: {success, item}
+deactivate API
+
+IP -> IP: Close form
+IP -> IP: Refresh inventory list
+IP -> IP: Show success message
+IP --> User: "Item added successfully"
+deactivate IP
+
+@enduml
+
+@startuml Add Inventory Item - Error Flow
+
+title UC-10E: Add Inventory Item - Error Flow (Duplicate Item ID)
+
+actor User
+participant "Inventory Page" as IP
+participant "API Service" as API
+participant "Inventory Router" as Router
+database PostgreSQL as DB
+
+User -> IP: Click "Add New Item"
+activate IP
+IP -> IP: Show add form
+
+User -> IP: Fill item details\n(existing item_id)
+User -> IP: Click "Save"
+
+IP -> IP: Validate form data
+
+IP -> API: POST /inventory\n{item_data}
+activate API
+
+API -> Router: add_inventory(item: InventoryItemIn)
+activate Router
+
+Router -> Router: Validate schema
+
+Router -> DB: INSERT INTO inventory_items\nVALUES (...)
+activate DB
+note right: UNIQUE constraint violation\non item_id column
+DB --> Router: IntegrityError:\nDuplicate key value
+deactivate DB
+
+Router -> Router: Catch exception
+
+Router --> API: {error: "Item ID already exists"}
+deactivate Router
+
+API --> IP: {success: false, error}
+deactivate API
+
+IP -> IP: Display error message\n"Item ID already exists"
+IP -> IP: Keep form open\n(preserve user data)
+IP --> User: Show error state
+deactivate IP
+
+@enduml
+
+@startuml Pick Item - Normal Flow
+
+title UC-22: Pick Item from Inventory - Normal Flow
+
+actor User
+participant "Pick Page" as PP
+participant "API Service" as API
+participant "Inventory Router" as Router
+database PostgreSQL as DB
+
+User -> PP: Enter search query\n(Item ID/SKU/Barcode)
+User -> PP: Click "Search"
+activate PP
+
+PP -> API: GET /inventory?search={query}
+activate API
+
+API -> Router: search_inventory(query)
+activate Router
+
+Router -> DB: SELECT * FROM inventory_items\nWHERE item_id = ? OR sku = ? OR barcode = ?
+activate DB
+DB --> Router: Item record
+deactivate DB
+
+Router --> API: InventoryItemOut
+deactivate Router
+
+API --> PP: {item details}
+deactivate API
+
+PP -> PP: Display item info\n(location, quantity available)
+PP --> User: Show item location
+
+User -> PP: Enter pick quantity\n(e.g., 5)
+User -> PP: Click "Pick Item"
+
+PP -> PP: Validate quantity\n(must be ≤ available)
+note right: Quantity check passes
+
+PP -> API: PUT /inventory/{id}\n{quantity: current - picked}
+activate API
+
+API -> Router: update_inventory_item(id, data)
+activate Router
+
+Router -> DB: UPDATE inventory_items\nSET quantity = quantity - ?\nWHERE id = ?
+activate DB
+DB --> Router: Updated record
+deactivate DB
+
+Router --> API: InventoryItemOut\n{updated item}
+deactivate Router
+
+API --> PP: {success, updated_item}
+deactivate API
+
+PP -> PP: Clear form
+PP -> PP: Show success message
+PP --> User: "Item picked successfully\nUpdated quantity: {new_qty}"
+deactivate PP
+
+@enduml
+
+@startuml Pick Item - Error Flow
+
+title UC-22E: Pick Item - Error Flow (Insufficient Quantity)
+
+actor User
+participant "Pick Page" as PP
+participant "API Service" as API
+
+User -> PP: Enter search query
+User -> PP: Click "Search"
+activate PP
+
+PP -> API: GET /inventory?search={query}
+activate API
+API --> PP: {item: {quantity: 10}}
+deactivate API
+
+PP -> PP: Display item info\n(Available: 10)
+PP --> User: Show item details
+
+User -> PP: Enter pick quantity: 15\n(exceeds available)
+User -> PP: Click "Pick Item"
+
+PP -> PP: Validate quantity\n(15 > 10 available)
+note right: Validation fails!\nInsufficient quantity
+
+PP -> PP: Display error message\n"Insufficient quantity\nAvailable: 10, Requested: 15"
+PP --> User: Show error state\n(form remains populated)
+deactivate PP
+
+note right of User
+  Pick operation cancelled
+  User can adjust quantity
+  or cancel the operation
+end note
+
+@enduml
+
+@startuml Create User - Normal Flow
+
+title UC-4: Create New User - Normal Flow (Admin Only)
+
+actor Admin
+participant "Admin Page" as AP
+participant "API Service" as API
+participant "Users Router" as Router
+database PostgreSQL as DB
+
+Admin -> AP: Click "Add New User"
+activate AP
+AP -> AP: Open modal form
+AP -> AP: Generate random password
+
+Admin -> AP: Enter user details\n(firstname, role, pages)
+Admin -> AP: Click "Create User"
+
+AP -> AP: Validate form data
+note right: Check required fields
+
+AP -> API: POST /users\n{user_data}
+activate API
+
+API -> Router: create_user(user: UserIn)
+activate Router
+
+Router -> Router: Validate schema
+Router -> Router: Hash password\n(bcrypt.hashpw)
+
+Router -> DB: INSERT INTO users\nVALUES (username, firstname,\nrole, password_hash, assigned_pages)
+activate DB
+DB --> Router: New user record
+deactivate DB
+
+Router --> API: UserOut\n{id, username, firstname, role}
+deactivate Router
+
+API --> AP: {success, user}
+deactivate API
+
+AP -> AP: Close modal
+AP -> AP: Show alert with credentials\n(save password securely)
+AP -> AP: Refresh user list
+AP --> Admin: "User created successfully"
+deactivate AP
+
+@enduml
+
+@startuml Create Shipment - Normal Flow
+
+title UC-25: Create New Shipment - Normal Flow
+
+actor User
+participant "Shipments Page" as SP
+participant "API Service" as API
+participant "Shipments Router" as Router
+database PostgreSQL as DB
+
+User -> SP: Click "New Shipment"
+activate SP
+SP -> SP: Show shipment form
+
+User -> SP: Enter shipment details\n(invoice, dates, items, qty)
+User -> SP: Click "Create Shipment"
+
+SP -> SP: Validate form data
+note right: Check invoice number\nvalidate dates
+
+SP -> API: POST /shipments\n{shipment_data}
+activate API
+
+API -> Router: create_shipment(shipment: ShipmentIn)
+activate Router
+
+Router -> Router: Validate schema\n(Pydantic)
+
+Router -> DB: INSERT INTO shipments\nVALUES (...)
+activate DB
+DB --> Router: New shipment record
+deactivate DB
+
+Router --> API: ShipmentOut
+deactivate Router
+
+API --> SP: {success, shipment}
+deactivate API
+
+SP -> SP: Clear form
+SP -> SP: Refresh shipment list
+SP -> SP: Show success message
+SP --> User: "Shipment created successfully"
+deactivate SP
+
+@enduml
+
+@startuml Create Shipment - Error Flow
+
+title UC-25E: Create Shipment - Error Flow (Duplicate Invoice)
+
+actor User
+participant "Shipments Page" as SP
+participant "API Service" as API
+participant "Shipments Router" as Router
+database PostgreSQL as DB
+
+User -> SP: Enter shipment details\n(duplicate invoice_number)
+User -> SP: Click "Create Shipment"
+activate SP
+
+SP -> SP: Validate form data
+
+SP -> API: POST /shipments\n{shipment_data}
+activate API
+
+API -> Router: create_shipment(shipment: ShipmentIn)
+activate Router
+
+Router -> Router: Validate schema
+
+Router -> DB: INSERT INTO shipments\nVALUES (...)
+activate DB
+note right: UNIQUE constraint violation\non invoice_number
+DB --> Router: IntegrityError:\nDuplicate invoice number
+deactivate DB
+
+Router -> Router: Catch exception
+
+Router --> API: {error: "Invoice number already exists"}
+deactivate Router
+
+API --> SP: {success: false, error}
+deactivate API
+
+SP -> SP: Display error message\n"Invoice number already exists"
+SP -> SP: Keep form open
+SP --> User: Show error state
+deactivate SP
+
+@enduml
+
+@startuml Upload Packing Slip - Normal Flow
+
+title UC-29: Upload Packing Slip - Normal Flow
+
+actor User
+participant "Shipments Page" as SP
+participant "API Service" as API
+participant "Packing Slips Router" as Router
+participant "File Storage" as FS
+database PostgreSQL as DB
+
+User -> SP: Drag and drop file\n(PDF packing slip)
+activate SP
+
+SP -> SP: Validate file type\n(PDF, JPEG, PNG)
+note right: File type valid
+
+SP -> SP: Show upload preview
+
+User -> SP: Click "Upload"
+
+SP -> API: POST /packing_slips\n{file, metadata}
+activate API
+
+API -> Router: upload_packing_slip(ps: PackingSlipIn)
+activate Router
+
+Router -> FS: Store file
+activate FS
+FS --> Router: {file_url}
+deactivate FS
+
+Router -> DB: INSERT INTO packing_slips\nVALUES (filename, content_type,\nfile_url, shipment_id, uploaded_by)
+activate DB
+DB --> Router: New packing slip record
+deactivate DB
+
+Router --> API: PackingSlipOut
+deactivate Router
+
+API --> SP: {success, packing_slip}
+deactivate API
+
+SP -> SP: Clear file input
+SP -> SP: Show success message
+SP --> User: "Packing slip uploaded successfully"
+deactivate SP
+
+@enduml
+
+@startuml Upload Packing Slip - Error Flow
+
+title UC-29E: Upload Packing Slip - Error Flow (Invalid File Format)
+
+actor User
+participant "Shipments Page" as SP
+
+User -> SP: Select/drag file\n(unsupported type: .exe)
+activate SP
+
+SP -> SP: Validate file type
+note right: Validation fails!\nOnly PDF, JPEG, PNG allowed
+
+SP -> SP: Display error message\n"Invalid file format\nOnly PDF, JPEG, PNG allowed"
+SP -> SP: Clear file input
+SP --> User: Show error state\n(upload cancelled)
+deactivate SP
+
+note right of User
+  User must select
+  valid file format
+  to retry upload
+end note
+
+@enduml
+
+@startuml Dashboard Load - Normal Flow
+
+title UC-31: View Dashboard Metrics - Normal Flow
+
+actor User
+participant "Dashboard Page" as DP
+participant "API Service" as API
+participant "Inventory Router" as IR
+participant "Shipments Router" as SR
+database PostgreSQL as DB
+
+User -> DP: Navigate to /dashboard
+activate DP
+
+DP -> DP: Show loading state
+
+par Parallel API Calls
+    DP -> API: GET /inventory
+    activate API
+    API -> IR: list_inventory()
+    activate IR
+    IR -> DB: SELECT * FROM inventory_items
+    activate DB
+    DB --> IR: All items
+    deactivate DB
+    IR --> API: List[InventoryItemOut]
+    deactivate IR
+    API --> DP: {items}
+    deactivate API
+else
+    DP -> API: GET /shipments
+    activate API
+    API -> SR: list_shipments()
+    activate SR
+    SR -> DB: SELECT * FROM shipments
+    activate DB
+    DB --> SR: All shipments
+    deactivate DB
+    SR --> API: List[ShipmentOut]
+    deactivate SR
+    API --> DP: {shipments}
+    deactivate API
+end
+
+DP -> DP: Calculate metrics\n- Total items\n- Active zones\n- Warehouse utilization
+
+DP -> DP: Render dashboard
+
+DP --> User: Display metrics,\nrecent activity,\nquick actions
+deactivate DP
+
+@enduml
+
+@startuml Dashboard Load - Error Flow
+
+title UC-31E: Dashboard Load - Error Flow (API Failure)
+
+actor User
+participant "Dashboard Page" as DP
+participant "API Service" as API
+
+User -> DP: Navigate to /dashboard
+activate DP
+
+DP -> DP: Show loading state
+
+DP -> API: GET /inventory
+activate API
+note right: Network error or\nserver unavailable
+API --> DP: {error: "Network error"}
+deactivate API
+
+DP -> DP: Catch error
+
+DP -> DP: Display error message\n"Unable to load dashboard\nPlease try again later"
+
+DP -> DP: Show retry button
+
+DP --> User: Error state displayed
+deactivate DP
+
+note right of User
+  User can:
+  1. Click retry button
+  2. Refresh page
+  3. Contact support
+end note
+
+@enduml
+
+@startuml Edit User - Normal Flow
+
+title UC-6: Edit User Details - Normal Flow
+
+actor Admin
+participant "Admin Page" as AP
+participant "API Service" as API
+participant "Users Router" as Router
+database PostgreSQL as DB
+
+Admin -> AP: Click "Edit" on user row
+activate AP
+
+AP -> AP: Open edit modal
+AP -> AP: Populate form with\ncurrent user data
+
+Admin -> AP: Modify user details\n(role, assigned_pages)
+Admin -> AP: Click "Update User"
+
+AP -> AP: Validate form data
+
+AP -> API: PUT /users/{id}\n{updated_data}
+activate API
+
+API -> Router: update_user(user_id, user: UserIn)
+activate Router
+
+Router -> Router: Validate schema
+
+Router -> DB: UPDATE users\nSET role = ?, assigned_pages = ?\nWHERE id = ?
+activate DB
+DB --> Router: Updated user record
+deactivate DB
+
+Router --> API: UserOut
+deactivate Router
+
+API --> AP: {success, user}
+deactivate API
+
+AP -> AP: Close modal
+AP -> AP: Refresh user list
+AP -> AP: Show success message
+AP --> Admin: "User updated successfully"
+deactivate AP
+
+@enduml
+
+@startuml Delete Inventory - Normal Flow
+
+title UC-14: Delete Inventory Item - Normal Flow
+
+actor User
+participant "Inventory Page" as IP
+participant "API Service" as API
+participant "Inventory Router" as Router
+database PostgreSQL as DB
+
+User -> IP: Click "Delete" on item
+activate IP
+
+IP -> IP: Show confirmation dialog\n"Are you sure?"
+
+User -> IP: Click "Confirm"
+
+IP -> API: DELETE /inventory/{id}
+activate API
+
+API -> Router: delete_inventory_item(item_id)
+activate Router
+
+Router -> DB: DELETE FROM inventory_items\nWHERE id = ?
+activate DB
+DB --> Router: Success
+deactivate DB
+
+Router --> API: {message: "Item deleted"}
+deactivate Router
+
+API --> IP: {success: true}
+deactivate API
+
+IP -> IP: Remove item from list
+IP -> IP: Show success message
+IP --> User: "Item deleted successfully"
+deactivate IP
+
+@enduml

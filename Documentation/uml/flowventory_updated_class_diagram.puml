@@ -1,0 +1,323 @@
+@startuml Flowventory Enhanced Class Diagram
+
+' Color scheme
+skinparam classAttributeIconSize 0
+skinparam class {
+    BackgroundColor<<Entity>> LightBlue
+    BackgroundColor<<Service>> LightGreen
+    BackgroundColor<<Controller>> LightYellow
+    BorderColor Black
+    ArrowColor DarkBlue
+}
+
+' ========== DATABASE ENTITIES ==========
+
+class User <<Entity>> {
+    - id: Integer {PK}
+    - username: String {Unique, Indexed}
+    - firstname: String
+    - role: String
+    - password: String
+    - assigned_pages: JSON[]
+    --
+    + create(): User
+    + update(data): User
+    + delete(): Boolean
+    + authenticate(password): Boolean
+    + hasPermission(page): Boolean
+}
+
+class Order <<Entity>> {
+    - id: Integer {PK}
+    - client_id: Integer {FK → User}
+    - status: String
+    - notes: Text
+    - items: JSON[]
+    --
+    + create(clientId, items): Order
+    + update(data): Order
+    + delete(): Boolean
+    + getStatus(): String
+    + setStatus(status): void
+    + addItem(item): void
+}
+
+class Shipment <<Entity>> {
+    - id: Integer {PK}
+    - our_name: String
+    - our_address: String
+    - bill_to: String
+    - ship_to: String
+    - invoice_number: String {Unique, Indexed}
+    - invoice_date: Date
+    - due_date: Date
+    - ship_via: String
+    - order_number: String
+    - qty: Integer
+    - item_type: String
+    - item_desc: String
+    - order_id: Integer {FK → Order}
+    --
+    + create(data): Shipment
+    + update(data): Shipment
+    + delete(): Boolean
+    + getInvoiceDetails(): Object
+    + linkToOrder(orderId): void
+}
+
+class InventoryItem <<Entity>> {
+    - id: Integer {PK}
+    - item_id: String {Unique, Indexed}
+    - sku: String {Indexed}
+    - description: String
+    - vendor: String
+    - quantity: Integer
+    - zone: String
+    - aisle: String
+    - rack: String
+    - shelf: String
+    - bin: String
+    - storage_location: String
+    - category: String
+    - weight: String
+    - dimensions: String
+    - barcode: String {Unique, Indexed}
+    - status: String
+    - last_shipment_id: Integer {FK → Shipment}
+    --
+    + create(data): InventoryItem
+    + update(data): InventoryItem
+    + delete(): Boolean
+    + search(query): InventoryItem[]
+    + pick(quantity): Boolean
+    + updateQuantity(newQty): void
+    + getLocation(): String
+    + setLocation(zone, aisle, rack, shelf, bin): void
+}
+
+class PackingSlip <<Entity>> {
+    - id: Integer {PK}
+    - filename: String
+    - content_type: String
+    - file_url: String
+    - shipment_id: Integer {FK → Shipment}
+    - inventory_item_id: Integer {FK → InventoryItem}
+    - uploaded_by: Integer {FK → User}
+    --
+    + upload(file, userId): PackingSlip
+    + retrieve(): File
+    + delete(): Boolean
+    + getMetadata(): Object
+}
+
+' ========== PYDANTIC SCHEMAS ==========
+
+class UserIn <<Schema>> {
+    + username: String
+    + firstname: String
+    + role: Role
+    + password: String
+    + assigned_pages: List[String]
+    --
+    + validate(): Boolean
+}
+
+class UserOut <<Schema>> {
+    + id: Integer
+    + username: String
+    + firstname: String
+    + role: Role
+    + assigned_pages: List[String]
+    --
+    + serialize(): JSON
+}
+
+class InventoryItemIn <<Schema>> {
+    + item_id: String
+    + sku: String
+    + description: String
+    + vendor: String
+    + quantity: Integer
+    + zone: String
+    + aisle: String
+    + rack: String
+    + shelf: String
+    + bin: String
+    + storage_location: String
+    + category: String
+    + weight: String
+    + dimensions: String
+    + barcode: String
+    + status: InventoryStatus
+    --
+    + validate(): Boolean
+}
+
+class InventoryItemOut <<Schema>> {
+    + id: Integer
+    + last_shipment_id: Integer
+    --
+    + serialize(): JSON
+}
+
+' ========== API ROUTERS ==========
+
+class UsersRouter <<Controller>> {
+    + create_user(user: UserIn): UserOut
+    + list_users(): List[UserOut]
+    + get_user(user_id: int): UserOut
+    + update_user(user_id: int, user: UserIn): UserOut
+    + delete_user(user_id: int): dict
+}
+
+class OrdersRouter <<Controller>> {
+    + create_order(order: OrderIn): OrderOut
+    + list_orders(): List[OrderOut]
+    + get_order(order_id: int): OrderOut
+    + update_order(order_id: int, order: OrderIn): OrderOut
+    + delete_order(order_id: int): dict
+}
+
+class ShipmentsRouter <<Controller>> {
+    + create_shipment(shipment: ShipmentIn): ShipmentOut
+    + list_shipments(): List[ShipmentOut]
+    + get_shipment(ship_id: int): ShipmentOut
+    + update_shipment(ship_id: int, shipment: ShipmentIn): ShipmentOut
+    + delete_shipment(ship_id: int): dict
+}
+
+class InventoryRouter <<Controller>> {
+    + add_inventory(item: InventoryItemIn): InventoryItemOut
+    + list_inventory(): List[InventoryItemOut]
+    + get_inventory_item(item_id: int): InventoryItemOut
+    + update_inventory_item(item_id: int, item: InventoryItemIn): InventoryItemOut
+    + delete_inventory_item(item_id: int): dict
+}
+
+class PackingSlipsRouter <<Controller>> {
+    + upload_packing_slip(ps: PackingSlipIn): PackingSlipOut
+    + list_packing_slips(): List[PackingSlipOut]
+    + get_packing_slip(ps_id: int): PackingSlipOut
+    + update_packing_slip(ps_id: int, ps: PackingSlipIn): PackingSlipOut
+    + delete_packing_slip(ps_id: int): dict
+}
+
+' ========== REACT COMPONENTS ==========
+
+class AuthContext <<Service>> {
+    - user: User
+    - isAuthenticated: Boolean
+    --
+    + login(username, password): Boolean
+    + logout(): void
+    + checkPermission(page): Boolean
+}
+
+class Navigation <<Component>> {
+    - menuItems: Array
+    --
+    + render(): JSX
+    + filterMenuByRole(): Array
+    + handleLogout(): void
+}
+
+class Dashboard <<Component>> {
+    - metrics: Object
+    - loading: Boolean
+    --
+    + fetchMetrics(): void
+    + render(): JSX
+}
+
+class InventoryPage <<Component>> {
+    - items: Array
+    - currentPage: Integer
+    - searchQuery: String
+    --
+    + fetchInventory(): void
+    + handleSearch(): void
+    + handleEdit(item): void
+    + handleDelete(itemId): void
+    + render(): JSX
+}
+
+class AdminPage <<Component>> {
+    - users: Array
+    - showModal: Boolean
+    - modalMode: String
+    --
+    + fetchUsers(): void
+    + handleAddUser(): void
+    + handleEditUser(user): void
+    + handleDeleteUser(userId): void
+    + handleSubmit(): void
+    + render(): JSX
+}
+
+' ========== RELATIONSHIPS ==========
+
+' Entity Relationships
+User "1" -- "0..*" Order : creates >
+User "1" -- "0..*" PackingSlip : uploads >
+Order "1" -- "0..*" Shipment : contains >
+Shipment "1" -- "0..*" InventoryItem : references >
+Shipment "1" -- "0..*" PackingSlip : has >
+InventoryItem "1" -- "0..*" PackingSlip : attached to >
+
+' Schema Relationships
+UserIn <|-- UserOut : extends
+InventoryItemIn <|-- InventoryItemOut : extends
+
+' Router to Entity
+UsersRouter ..> User : manages
+OrdersRouter ..> Order : manages
+ShipmentsRouter ..> Shipment : manages
+InventoryRouter ..> InventoryItem : manages
+PackingSlipsRouter ..> PackingSlip : manages
+
+' Router to Schema
+UsersRouter ..> UserIn : uses
+UsersRouter ..> UserOut : returns
+InventoryRouter ..> InventoryItemIn : uses
+InventoryRouter ..> InventoryItemOut : returns
+
+' Component to Service
+Navigation ..> AuthContext : uses
+Dashboard ..> AuthContext : uses
+InventoryPage ..> AuthContext : uses
+AdminPage ..> AuthContext : uses
+
+' Component to Router (API calls)
+Dashboard ..> InventoryRouter : calls
+InventoryPage ..> InventoryRouter : calls
+AdminPage ..> UsersRouter : calls
+
+' Notes
+note right of User
+  Role can be:
+  - admin
+  - engineer
+  - manager
+  Password should be
+  hashed (bcrypt)
+end note
+
+note right of InventoryItem
+  Status can be:
+  - pending_inspection
+  - ready_for_deployment
+  - installed
+
+  Storage location format:
+  Zone-Aisle-Rack-Shelf-Bin
+end note
+
+note right of Order
+  Status can be:
+  - submitted
+  - in_progress
+  - closed
+  - canceled
+end note
+
+@enduml
