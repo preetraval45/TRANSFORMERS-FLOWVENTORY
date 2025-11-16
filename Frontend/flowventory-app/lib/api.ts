@@ -59,16 +59,40 @@ export const api = {
 
   // Shipments
   getShipments: async () => {
-    const response = await fetch(`${API_BASE_URL}/shipments`);
+    const response = await fetch(`${API_BASE_URL}/shipments/`);
     return response.json();
   },
 
   createShipment: async (shipmentData: Record<string, unknown>) => {
-    const response = await fetch(`${API_BASE_URL}/shipments`, {
+    const response = await fetch(`${API_BASE_URL}/shipments/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(shipmentData),
     });
+    return response.json();
+  },
+
+  getShipment: async (id: number) => {
+    const response = await fetch(`${API_BASE_URL}/shipments/${id}`);
+    if (!response.ok) throw new Error(`Failed to fetch shipment ${id}`);
+    return response.json();
+  },
+
+  updateShipment: async (id: number, shipmentData: Record<string, unknown>) => {
+    const response = await fetch(`${API_BASE_URL}/shipments/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(shipmentData),
+    });
+    if (!response.ok) throw new Error(`Failed to update shipment ${id}`);
+    return response.json();
+  },
+
+  deleteShipment: async (id: number) => {
+    const response = await fetch(`${API_BASE_URL}/shipments/${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) throw new Error(`Failed to delete shipment ${id}`);
     return response.json();
   },
 
@@ -105,16 +129,43 @@ export const api = {
 
   // Packing Slips
   getPackingSlips: async () => {
-    const response = await fetch(`${API_BASE_URL}/packing_slips`);
+    const response = await fetch(`${API_BASE_URL}/packing_slips/`);
     return response.json();
   },
 
   uploadPackingSlip: async (slipData: Record<string, unknown>) => {
-    const response = await fetch(`${API_BASE_URL}/packing_slips`, {
+    const response = await fetch(`${API_BASE_URL}/packing_slips/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(slipData),
     });
+    return response.json();
+  },
+
+  // Fetch a single packing slip by id
+  getPackingSlip: async (id: number) => {
+    const response = await fetch(`${API_BASE_URL}/packing_slips/${id}`);
+    if (!response.ok) throw new Error(`Failed to fetch packing slip ${id}`);
+    return response.json();
+  },
+
+  // Update an existing packing slip
+  updatePackingSlip: async (id: number, slipData: Record<string, unknown>) => {
+    const response = await fetch(`${API_BASE_URL}/packing_slips/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(slipData),
+    });
+    if (!response.ok) throw new Error(`Failed to update packing slip ${id}`);
+    return response.json();
+  },
+
+  // Delete a packing slip
+  deletePackingSlip: async (id: number) => {
+    const response = await fetch(`${API_BASE_URL}/packing_slips/${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) throw new Error(`Failed to delete packing slip ${id}`);
     return response.json();
   },
 };

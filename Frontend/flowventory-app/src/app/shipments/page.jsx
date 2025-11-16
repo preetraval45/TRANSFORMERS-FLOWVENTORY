@@ -1,11 +1,13 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import api from '../../../lib/api';
 
 export default function Shipments() {
   const { user } = useAuth();
   const [packingSlips, setPackingSlips] = useState([]);
   const [editingSlip, setEditingSlip] = useState(null);
+  const [showForm, setShowForm] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const [formData, setFormData] = useState({
@@ -22,6 +24,7 @@ export default function Shipments() {
     item_type: '',
     item_description: ''
   });
+  const [viewedSlip, setViewedSlip] = useState(null);
 
   const shipViaOptions = ['FedEx', 'UPS', 'USPS', 'DHL', 'Local Delivery', 'Will Call'];
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost/api';
@@ -32,14 +35,10 @@ export default function Shipments() {
 
   const fetchPackingSlips = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/shipments/`);
-      if (response.ok) {
-        const data = await response.json();
-        // Sort by ID descending (newest first)
-        const sortedData = data.sort((a, b) => b.id - a.id);
-        setPackingSlips(sortedData);
-        setCurrentPage(1); // Reset to first page when data refreshes
-      }
+      const data = await api.getShipments();
+      const sortedData = data.sort((a, b) => b.id - a.id);
+      setPackingSlips(sortedData);
+      setCurrentPage(1);
     } catch (error) {
       console.error('Error fetching packing slips:', error);
     }
@@ -72,24 +71,16 @@ export default function Shipments() {
     };
 
     try {
-      const response = await fetch(`${API_BASE_URL}/shipments/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      if (response.ok) {
-        alert('Packing slip created successfully!');
-        resetForm();
-        fetchPackingSlips();
+      if (editingSlip && editingSlip.id) {
+        await api.updateShipment(editingSlip.id, payload);
       } else {
-        const errorData = await response.json();
-        console.error('Error response:', errorData);
-        alert('Error creating packing slip: ' + (errorData.detail || 'Unknown error'));
+        await api.createShipment(payload);
       }
+      resetForm();
+      fetchPackingSlips();
     } catch (error) {
-      console.error('Error:', error);
-      alert('Error creating packing slip: ' + error.message);
+      console.error('Error submitting packing slip:', error);
+      alert('Error saving packing slip: ' + (error?.message || 'Unknown error'));
     }
   };
 
@@ -112,26 +103,50 @@ export default function Shipments() {
   };
 
   const handleEdit = async (slip) => {
-    setEditingSlip(slip);
-    setFormData({
-      our_name: slip.our_name,
-      our_address: slip.our_address,
-      bill_to: slip.bill_to,
-      ship_to: slip.ship_to,
-      invoice_number: slip.invoice_number,
-      date: slip.invoice_date,
-      due_date: slip.due_date || '',
-      ship_via: slip.ship_via,
-      order_number: slip.order_number || '',
-      qty: slip.qty,
-      item_type: slip.item_type,
-      item_description: slip.item_desc
-    });
-    setShowForm(true);
+    try {
+      // Fetch freshest data from API before editing (use shipments endpoint)
+      const fresh = await api.getShipment(slip.id);
+      setEditingSlip(fresh);
+      setFormData({
+        our_name: fresh.our_name ?? formData.our_name,
+        our_address: fresh.our_address ?? formData.our_address,
+        bill_to: fresh.bill_to ?? '',
+        ship_to: fresh.ship_to ?? '',
+        invoice_number: fresh.invoice_number ?? '',
+        date: fresh.invoice_date ?? new Date().toISOString().split('T')[0],
+        due_date: fresh.due_date || '',
+        ship_via: fresh.ship_via ?? 'FedEx',
+        order_number: fresh.order_number || '',
+        qty: fresh.qty ?? '',
+        item_type: fresh.item_type ?? '',
+        item_description: fresh.item_desc ?? ''
+      });
+      setShowForm(true);
+    } catch (error) {
+      console.error('Failed to fetch packing slip for edit, falling back to provided slip:', error);
+      // Fallback to provided slip data
+      setEditingSlip(slip);
+      setFormData({
+        our_name: slip.our_name,
+        our_address: slip.our_address,
+        bill_to: slip.bill_to,
+        ship_to: slip.ship_to,
+        invoice_number: slip.invoice_number,
+        date: slip.invoice_date,
+        due_date: slip.due_date || '',
+        ship_via: slip.ship_via,
+        order_number: slip.order_number || '',
+        qty: slip.qty,
+        item_type: slip.item_type,
+        item_description: slip.item_desc
+      });
+      setShowForm(true);
+    }
   };
 
   const handleView = (slip) => {
-    alert(`Viewing: ${slip.invoice_number}\nItem: ${slip.item_desc}\nQty: ${slip.qty}`);
+    // Open a modal to view slip details instead of using a blocking alert
+    setViewedSlip(slip);
   };
 
   const handlePrint = (slip) => {
@@ -140,17 +155,13 @@ export default function Shipments() {
 
   const handleDelete = async (id) => {
     if (!confirm('Are you sure you want to delete this packing slip?')) return;
-
     try {
-      const response = await fetch(`${API_BASE_URL}/shipments/${id}`, {
-        method: 'DELETE'
-      });
-      if (response.ok) {
-        alert('Packing slip deleted successfully');
-        fetchPackingSlips();
-      }
+      await api.deleteShipment(id);
+      alert('Packing slip deleted successfully');
+      fetchPackingSlips();
     } catch (error) {
       console.error('Error deleting:', error);
+      alert('Failed to delete packing slip: ' + (error?.message || 'Unknown error'));
     }
   };
 
@@ -165,7 +176,8 @@ export default function Shipments() {
           <p className="text-purple-100 text-lg">Create and manage shipment packing slips</p>
         </div>
 
-        {/* Packing Slip Form - Always Visible */}
+        {/* Packing Slip Form - visible when showForm is true */}
+        {showForm ? (
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden mb-8">
           <div className="bg-gradient-to-r from-purple-500 to-pink-500 px-8 py-6">
             <h2 className="text-2xl font-bold text-white flex items-center">
@@ -264,8 +276,56 @@ export default function Shipments() {
             </div>
           </form>
         </div>
+        ) : (
+          <div className="mb-8">
+            <button type="button" onClick={() => { setShowForm(true); resetForm(); }} className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg font-semibold">+ New Packing Slip</button>
+          </div>
+        )}
 
         {/* Packing Slips Table - Always Below Form */}
+        {/* Modal for viewing a packing slip (non-blocking) */}
+        {viewedSlip && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black opacity-40" onClick={() => setViewedSlip(null)} />
+            <div className="bg-white rounded-2xl shadow-2xl z-10 max-w-3xl w-full mx-4 p-6">
+              <div className="flex items-start justify-between">
+                <h3 className="text-xl font-bold">Packing Slip: {viewedSlip.invoice_number}</h3>
+                <button onClick={() => setViewedSlip(null)} className="text-gray-500 hover:text-gray-700">✖</button>
+              </div>
+              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-800">
+                <div>
+                  <h4 className="font-semibold">Ship To</h4>
+                  <pre className="whitespace-pre-wrap text-sm mt-1">{viewedSlip.ship_to}</pre>
+                </div>
+                <div>
+                  <h4 className="font-semibold">Bill To</h4>
+                  <pre className="whitespace-pre-wrap text-sm mt-1">{viewedSlip.bill_to}</pre>
+                </div>
+                <div>
+                  <h4 className="font-semibold">Item</h4>
+                  <div className="mt-1">{viewedSlip.item_desc} ({viewedSlip.item_type})</div>
+                </div>
+                <div>
+                  <h4 className="font-semibold">Quantity</h4>
+                  <div className="mt-1">{viewedSlip.qty}</div>
+                </div>
+                <div>
+                  <h4 className="font-semibold">Ship Via</h4>
+                  <div className="mt-1">{viewedSlip.ship_via}</div>
+                </div>
+                <div>
+                  <h4 className="font-semibold">Dates</h4>
+                  <div className="mt-1">Invoice: {viewedSlip.invoice_date}{viewedSlip.due_date ? ` • Due: ${viewedSlip.due_date}` : ''}</div>
+                </div>
+              </div>
+              <div className="mt-6 flex justify-end gap-3">
+                <button onClick={() => { window.print(); }} className="bg-green-600 text-white px-4 py-2 rounded-lg">🖨️ Print</button>
+                <button onClick={() => setViewedSlip(null)} className="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg">Close</button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
           <div className="bg-gradient-to-r from-purple-500 to-pink-500 px-8 py-6">
             <h2 className="text-2xl font-bold text-white flex items-center">
