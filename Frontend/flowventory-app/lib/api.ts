@@ -8,7 +8,7 @@ export const api = {
   },
 
   createUser: async (userData: Record<string, unknown>) => {
-    const response = await fetch(`${API_BASE_URL}/users`, {
+    const response = await fetch(`${API_BASE_URL}/users/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(userData),

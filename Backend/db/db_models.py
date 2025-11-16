@@ -8,7 +8,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True, nullable=False)
     firstname = Column(String, nullable=False)
-    role = Column(String, nullable=False)  # "client", "engineer", "admin"
+    role = Column(String, nullable=False) 
     password = Column(String, nullable=False)  # Should be hashed in production
     assigned_pages = Column(JSON, nullable=True)  # Array of page names like ["dashboard", "inventory"]
 

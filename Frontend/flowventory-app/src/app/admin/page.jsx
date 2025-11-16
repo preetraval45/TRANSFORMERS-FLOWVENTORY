@@ -131,14 +131,12 @@ export default function UserManagement() {
 
       if (modalMode === 'add') {
         payload.password = formData.password;
-        await api.createUser(payload);
-        alert(`User created successfully!\n\nUsername: ${formData.username}\nPassword: ${formData.password}\n\nPlease save this password securely.`);
+        const response = await api.createUser(payload);
       } else {
         if (formData.password) {
           payload.password = formData.password;
         }
         await api.updateUser(selectedUser.id, payload);
-        alert('User updated successfully');
       }
 
       setShowModal(false);
