@@ -133,9 +133,7 @@ export default function UserManagement() {
         payload.password = formData.password;
         const response = await api.createUser(payload);
       } else {
-        if (formData.password) {
-          payload.password = formData.password;
-        }
+        // For edits we do not send or accept password changes from the UI
         await api.updateUser(selectedUser.id, payload);
       }
 
@@ -423,20 +421,18 @@ export default function UserManagement() {
                   </div>
 
                   {/* Password */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {modalMode === 'add' ? 'Generated Password *' : 'New Password (optional)'}
-                    </label>
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={formData.password}
-                        readOnly={modalMode === 'add'}
-                        onChange={modalMode === 'edit' ? (e) => setFormData(prev => ({ ...prev, password: e.target.value })) : undefined}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 font-mono text-sm"
-                        placeholder={modalMode === 'edit' ? 'Leave blank to keep current password' : ''}
-                      />
-                      {modalMode === 'add' && (
+                  {modalMode === 'add' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Generated Password *
+                      </label>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={formData.password}
+                          readOnly
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 font-mono text-sm"
+                        />
                         <button
                           type="button"
                           onClick={() => setFormData(prev => ({ ...prev, password: generateRandomPassword() }))}
@@ -444,12 +440,10 @@ export default function UserManagement() {
                         >
                           Regenerate
                         </button>
-                      )}
-                    </div>
-                    {modalMode === 'add' && (
+                      </div>
                       <p className="text-xs text-amber-600 mt-1">Save this password securely! It won't be shown again.</p>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Action Buttons */}

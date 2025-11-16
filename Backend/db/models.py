@@ -14,6 +14,14 @@ class UserIn(BaseModel):
     password: str  # only for create
     assigned_pages: Optional[List[str]] = None
 
+# New: allow partial updates without requiring password
+class UserUpdate(BaseModel):
+    username: Optional[str] = None
+    firstname: Optional[str] = None
+    role: Optional[Role] = None
+    password: Optional[str] = None
+    assigned_pages: Optional[List[str]] = None
+
 class UserOut(BaseModel):
     id: int
     username: str

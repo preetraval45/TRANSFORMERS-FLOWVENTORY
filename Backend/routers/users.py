@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from db.models import UserIn, UserOut
+from db.models import UserIn, UserOut, UserUpdate
 from db import db_models
 from db.database import get_db
 
@@ -36,14 +36,14 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
     return {"message": "User deleted"}
 
 @router.put("/{user_id}", response_model=UserOut)
-def update_user(user_id: int, updated_user: UserIn, db: Session = Depends(get_db)):
+def update_user(user_id: int, updated_user: UserUpdate, db: Session = Depends(get_db)):
     user = db.query(db_models.User).filter(db_models.User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     # Only update fields that are provided and not empty
     for key, value in updated_user.model_dump(exclude_unset=True).items():
-        # Skip password if it's empty string (means don't change it)
-        if key == 'password' and not value:
+        # Skip password if it's None or empty string (means don't change it)
+        if key == 'password' and (value is None or value == ''):
             continue
         setattr(user, key, value)
     db.commit()
