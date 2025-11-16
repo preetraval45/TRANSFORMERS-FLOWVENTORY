@@ -55,13 +55,13 @@
 **Description:** Test successful login with valid admin credentials
 
 **Pre-conditions:**
-- Application is running at http://localhost:3000
+- Application is running at http://localhost:4000
 - Admin user exists in database
 - Username: `Preet`
 - Password: `P@ss123!`
 
 **Test Steps:**
-1. Navigate to http://localhost:3000/login
+1. Navigate to http://localhost:4000/login
 2. Enter username: `Preet`
 3. Enter password: `P@ss123!`
 4. Click "Sign In" button
@@ -317,9 +317,9 @@
 
 **Test Steps:**
 1. Ensure user is logged out
-2. Manually navigate to http://localhost:3000/dashboard
-3. Try to access http://localhost:3000/inventory
-4. Try to access http://localhost:3000/admin
+2. Manually navigate to http://localhost:4000/dashboard
+3. Try to access http://localhost:4000/inventory
+4. Try to access http://localhost:4000/admin
 
 **Expected Output:**
 - User is automatically redirected to /login
