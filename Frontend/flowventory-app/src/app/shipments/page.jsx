@@ -5,8 +5,9 @@ import { useAuth } from '@/contexts/AuthContext';
 export default function Shipments() {
   const { user } = useAuth();
   const [packingSlips, setPackingSlips] = useState([]);
-  const [showForm, setShowForm] = useState(false);
   const [editingSlip, setEditingSlip] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const [formData, setFormData] = useState({
     our_name: 'Flowventory',
     our_address: 'University of North Carolina at Charlotte\n9201 University City Blvd\nCharlotte, NC 28223',
@@ -34,7 +35,10 @@ export default function Shipments() {
       const response = await fetch(`${API_BASE_URL}/shipments/`);
       if (response.ok) {
         const data = await response.json();
-        setPackingSlips(data);
+        // Sort by ID descending (newest first)
+        const sortedData = data.sort((a, b) => b.id - a.id);
+        setPackingSlips(sortedData);
+        setCurrentPage(1); // Reset to first page when data refreshes
       }
     } catch (error) {
       console.error('Error fetching packing slips:', error);
@@ -76,15 +80,16 @@ export default function Shipments() {
 
       if (response.ok) {
         alert('Packing slip created successfully!');
-        setShowForm(false);
         resetForm();
         fetchPackingSlips();
       } else {
-        alert('Error creating packing slip');
+        const errorData = await response.json();
+        console.error('Error response:', errorData);
+        alert('Error creating packing slip: ' + (errorData.detail || 'Unknown error'));
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('Error creating packing slip');
+      alert('Error creating packing slip: ' + error.message);
     }
   };
 
@@ -291,7 +296,9 @@ export default function Shipments() {
                       </td>
                     </tr>
                   ) : (
-                    packingSlips.map((slip) => (
+                    packingSlips
+                      .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                      .map((slip) => (
                       <tr key={slip.id} className="hover:bg-purple-50 transition-colors">
                         <td className="px-6 py-4 text-sm font-semibold text-purple-600">{slip.invoice_number}</td>
                         <td className="px-6 py-4 text-sm text-gray-900">{slip.invoice_date}</td>
@@ -301,10 +308,10 @@ export default function Shipments() {
                         <td className="px-6 py-4 text-sm text-gray-900">{slip.ship_via}</td>
                         <td className="px-6 py-4 text-sm">
                           <div className="flex space-x-2">
-                            <button onClick={() => handleView(slip)} className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-xs font-medium">👁️ View</button>
-                            <button onClick={() => handleEdit(slip)} className="bg-purple-600 text-white px-3 py-1 rounded hover:bg-purple-700 text-xs font-medium">✏️ Edit</button>
-                            <button onClick={() => handlePrint(slip)} className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-xs font-medium">🖨️ Print</button>
-                            <button onClick={() => handleDelete(slip.id)} className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-xs font-medium">🗑️ Delete</button>
+                            <button onClick={() => handleView(slip)} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">👁️ View</button>
+                            <button onClick={() => handleEdit(slip)} className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors font-medium">✏️ Edit</button>
+                            <button onClick={() => handlePrint(slip)} className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium">🖨️ Print</button>
+                            <button onClick={() => handleDelete(slip.id)} className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium">🗑️ Delete</button>
                           </div>
                         </td>
                       </tr>
@@ -313,6 +320,34 @@ export default function Shipments() {
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination */}
+            {packingSlips.length > itemsPerPage && (
+              <div className="px-8 py-4 flex items-center justify-between border-t border-gray-200">
+                <div className="text-sm text-gray-600">
+                  Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, packingSlips.length)} of {packingSlips.length} shipments
+                </div>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    disabled={currentPage === 1}
+                    className={`px-4 py-2 rounded-lg font-medium ${currentPage === 1 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+                  >
+                    Previous
+                  </button>
+                  <span className="px-4 py-2 text-gray-700 font-medium">
+                    Page {currentPage} of {Math.ceil(packingSlips.length / itemsPerPage)}
+                  </span>
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(Math.ceil(packingSlips.length / itemsPerPage), prev + 1))}
+                    disabled={currentPage === Math.ceil(packingSlips.length / itemsPerPage)}
+                    className={`px-4 py-2 rounded-lg font-medium ${currentPage === Math.ceil(packingSlips.length / itemsPerPage) ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
