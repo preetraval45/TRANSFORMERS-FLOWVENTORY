@@ -17,6 +17,10 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    # For server-based shared database:
+    # 1. Comment out the entire 'db' service above
+    # 2. Update DATABASE_URL in backend service to point to your server database
+    # 3. Ensure your server PostgreSQL allows remote connections
 
   backend:
     build:
@@ -26,10 +30,14 @@ services:
     ports:
       - "4002:8000"
     environment:
+      # Local database (default)
       DATABASE_URL: postgresql://postgres:postgres@db:5432/flowventory
+      # For server-based database, replace the line above with:
+      # DATABASE_URL: postgresql://username:password@your-server-ip:5432/flowventory
     depends_on:
       db:
         condition: service_healthy
+      # If using server database, comment out the depends_on section above
     networks:
       - flowventory-network
     volumes:
