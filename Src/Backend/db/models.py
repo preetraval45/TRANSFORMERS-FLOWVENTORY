@@ -1,22 +1,25 @@
 # app/schemas.py
-from typing import List, Optional, Literal
+from typing import List, Optional, Literal, Union
 from pydantic import BaseModel
+from datetime import date
 
 
 # ---- Users ----
-Role = Literal["client", "engineer", "admin"]
+Role = Literal["admin", "engineer", "manager"]
 
 class UserIn(BaseModel):
     username: str
     firstname: str
     role: Role
     password: str  # only for create
+    assigned_pages: Optional[List[str]] = None
 
 class UserOut(BaseModel):
     id: int
     username: str
     firstname: str
     role: Role
+    assigned_pages: Optional[List[str]] = None
 
 
 # ---- Orders ----
@@ -39,22 +42,23 @@ class OrderOut(OrderIn):
 
 
 # ---- Shipments ----
-ShipmentStatus = Literal["pending", "partially_received", "received"]
-
-class ShipmentItem(BaseModel):
-    item_id: str
-    description: Optional[str] = None
-    expected_qty: int = 0
-    received_qty: int = 0
-
 class ShipmentIn(BaseModel):
-    vendor: str
-    carrier: Optional[str] = None
-    tracking_number: Optional[str] = None
-    expected_delivery_date: Optional[str] = None  # "YYYY-MM-DD"
+    our_name: str = "Flowventory"
+    our_address: str = "9201 University City Blvd, Charlotte, NC 28223"
+    bill_to: Optional[str] = None
+    ship_to: Optional[str] = None
+    invoice_number: str
+    invoice_date: Union[str, date]  # Accept both string "YYYY-MM-DD" and date object
+    due_date: Optional[Union[str, date]] = None  # Accept both string "YYYY-MM-DD" and date object
+    ship_via: Optional[str] = None
+    order_number: Optional[str] = None
+    qty: int
+    item_type: str
+    item_desc: Optional[str] = None
     order_id: Optional[int] = None
-    status: ShipmentStatus = "pending"
-    items: List[ShipmentItem] = []
+
+    class Config:
+        from_attributes = True  # Allow ORM mode for SQLAlchemy objects
 
 class ShipmentOut(ShipmentIn):
     id: int

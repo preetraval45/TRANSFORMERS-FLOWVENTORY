@@ -10,8 +10,6 @@ router = APIRouter(prefix="/shipments", tags=["shipments"])
 @router.post("/", response_model=ShipmentOut)
 def create_shipment(shipment: ShipmentIn, db: Session = Depends(get_db)):
     shipment_data = shipment.model_dump()
-    items = [item.model_dump() if hasattr(item, 'model_dump') else item for item in shipment.items]
-    shipment_data["items"] = items
     db_shipment = db_models.Shipment(**shipment_data)
     db.add(db_shipment)
     db.commit()
@@ -45,8 +43,6 @@ def update_shipment(ship_id: int, updated_shipment: ShipmentIn, db: Session = De
         raise HTTPException(status_code=404, detail="Shipment not found")
     shipment_data = updated_shipment.model_dump()
     for key, value in shipment_data.items():
-        if key == "items":
-            value = [item.model_dump() if hasattr(item, 'model_dump') else item for item in updated_shipment.items]
         setattr(shipment, key, value)
     db.commit()
     db.refresh(shipment)

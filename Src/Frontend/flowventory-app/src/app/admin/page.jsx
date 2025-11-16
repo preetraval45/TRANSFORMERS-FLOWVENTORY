@@ -9,6 +9,8 @@ export default function UserManagement() {
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState('add'); // 'add' or 'edit'
   const [selectedUser, setSelectedUser] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const [formData, setFormData] = useState({
     username: '',
     firstname: '',
@@ -23,7 +25,8 @@ export default function UserManagement() {
     { value: 'stock', label: 'Stock' },
     { value: 'pick', label: 'Pick' },
     { value: 'shipments', label: 'Shipments' },
-    { value: 'inventory', label: 'Inventory' }
+    { value: 'inventory', label: 'Inventory' },
+    { value: 'admin', label: 'User Management' }
   ];
 
   useEffect(() => {
@@ -36,7 +39,10 @@ export default function UserManagement() {
     try {
       setLoading(true);
       const response = await api.getUsers();
-      setUsers(response || []);
+      // Sort by ID descending (newest first)
+      const sortedUsers = (response || []).sort((a, b) => b.id - a.id);
+      setUsers(sortedUsers);
+      setCurrentPage(1); // Reset to first page
     } catch (error) {
       console.error('Error fetching users:', error);
       setUsers([]);
@@ -236,7 +242,9 @@ export default function UserManagement() {
                         </td>
                       </tr>
                     ) : (
-                      users.map((userData) => (
+                      users
+                        .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                        .map((userData) => (
                         <tr key={userData.id} className="hover:bg-blue-50 transition-colors">
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
@@ -297,69 +305,98 @@ export default function UserManagement() {
                 </table>
               </div>
             )}
+
+            {/* Pagination */}
+            {users.length > itemsPerPage && (
+              <div className="px-8 py-4 flex items-center justify-between border-t border-gray-200">
+                  <div className="text-sm text-gray-600">
+                    Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, users.length)} of {users.length} users
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      disabled={currentPage === 1}
+                      className={`px-4 py-2 rounded-lg font-medium ${currentPage === 1 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+                    >
+                      Previous
+                    </button>
+                    <span className="px-4 py-2 text-gray-700 font-medium">
+                      Page {currentPage} of {Math.ceil(users.length / itemsPerPage)}
+                    </span>
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.min(Math.ceil(users.length / itemsPerPage), prev + 1))}
+                      disabled={currentPage === Math.ceil(users.length / itemsPerPage)}
+                      className={`px-4 py-2 rounded-lg font-medium ${currentPage === Math.ceil(users.length / itemsPerPage) ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              )}
           </div>
         </div>
 
         {/* Add/Edit User Modal */}
         {showModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
-              <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-6 rounded-t-2xl">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-2xl font-bold text-white">
-                    {modalMode === 'add' ? '➕ Add New User' : '✏️ Edit User'}
-                  </h2>
-                  <button
-                    onClick={() => setShowModal(false)}
-                    className="text-white hover:text-gray-200 text-3xl leading-none"
-                  >
-                    ×
-                  </button>
-                </div>
+              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 rounded-t-2xl flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-white">
+                  {modalMode === 'add' ? 'Add New User' : 'Edit User'}
+                </h2>
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="text-white hover:text-gray-200 text-3xl leading-none font-light"
+                >
+                  ×
+                </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="p-8">
-                <div className="space-y-6">
+              <form onSubmit={handleSubmit} className="p-6">
+                <div className="space-y-4">
                   {/* First Name */}
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">
-                      First Name *
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Full Name *
                     </label>
                     <input
                       type="text"
                       value={formData.firstname}
                       onChange={(e) => setFormData(prev => ({ ...prev, firstname: e.target.value, username: modalMode === 'add' ? e.target.value.toLowerCase().replace(/\s+/g, '') : prev.username }))}
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring focus:ring-blue-200"
-                      placeholder="Enter first name"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                      placeholder="Enter full name"
                       required
                     />
                   </div>
 
                   {/* Username */}
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
                       Username *
                     </label>
                     <input
                       type="text"
                       value={formData.username}
                       onChange={(e) => setFormData(prev => ({ ...prev, username: e.target.value }))}
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring focus:ring-blue-200"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:bg-gray-100"
                       placeholder="Enter username"
                       required
                       disabled={modalMode === 'edit'}
                     />
+                    {modalMode === 'edit' && (
+                      <p className="text-xs text-gray-500 mt-1">Username cannot be changed</p>
+                    )}
                   </div>
 
                   {/* Role */}
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
                       Role *
                     </label>
                     <select
                       value={formData.role}
                       onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring focus:ring-blue-200"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                     >
                       <option value="admin">Admin - Full system access</option>
                       <option value="manager">Manager - Management access</option>
@@ -369,19 +406,19 @@ export default function UserManagement() {
 
                   {/* Assigned Pages */}
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-3">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
                       Assigned Pages
                     </label>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-2">
                       {availablePages.map(page => (
-                        <label key={page.value} className="flex items-center space-x-3 p-3 border-2 border-gray-200 rounded-lg hover:bg-blue-50 cursor-pointer transition-colors">
+                        <label key={page.value} className="flex items-center space-x-2 p-2 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
                           <input
                             type="checkbox"
                             checked={formData.assigned_pages.includes(page.value)}
                             onChange={() => handlePageToggle(page.value)}
-                            className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                           />
-                          <span className="text-sm font-medium text-gray-700">{page.label}</span>
+                          <span className="text-sm text-gray-700">{page.label}</span>
                         </label>
                       ))}
                     </div>
@@ -389,7 +426,7 @@ export default function UserManagement() {
 
                   {/* Password */}
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
                       {modalMode === 'add' ? 'Generated Password *' : 'New Password (optional)'}
                     </label>
                     <div className="flex gap-2">
@@ -398,41 +435,39 @@ export default function UserManagement() {
                         value={formData.password}
                         readOnly={modalMode === 'add'}
                         onChange={modalMode === 'edit' ? (e) => setFormData(prev => ({ ...prev, password: e.target.value })) : undefined}
-                        className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-50 font-mono text-sm"
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 font-mono text-sm"
                         placeholder={modalMode === 'edit' ? 'Leave blank to keep current password' : ''}
                       />
                       {modalMode === 'add' && (
                         <button
                           type="button"
                           onClick={() => setFormData(prev => ({ ...prev, password: generateRandomPassword() }))}
-                          className="px-4 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-medium whitespace-nowrap"
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium whitespace-nowrap"
                         >
-                          🔄 Regenerate
+                          Regenerate
                         </button>
                       )}
                     </div>
                     {modalMode === 'add' && (
-                      <p className="text-xs text-amber-600 mt-2 font-semibold">
-                        ⚠️ Save this password! It won't be shown again.
-                      </p>
+                      <p className="text-xs text-amber-600 mt-1">Save this password securely! It won't be shown again.</p>
                     )}
                   </div>
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex space-x-4 mt-8">
+                <div className="flex justify-end space-x-3 mt-6 pt-4 border-t border-gray-200">
                   <button
                     type="button"
                     onClick={() => setShowModal(false)}
-                    className="flex-1 bg-gray-300 text-gray-700 py-3 px-6 rounded-lg text-sm font-bold hover:bg-gray-400 transition-colors"
+                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg text-sm font-bold hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-105"
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
                   >
-                    {modalMode === 'add' ? '✓ Create User' : '✓ Update User'}
+                    {modalMode === 'add' ? 'Create User' : 'Update User'}
                   </button>
                 </div>
               </form>

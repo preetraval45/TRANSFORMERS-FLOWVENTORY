@@ -23,15 +23,15 @@ def seed_database():
         print("Creating users...")
         # Create users
         users_data = [
-            {"username": "Preet", "firstname": "Preet", "role": "admin", "password": "P@ss123!"},
-            {"username": "Carlotta", "firstname": "Carlotta", "role": "admin", "password": "C@rl456@"},
-            {"username": "Yana", "firstname": "Yana", "role": "engineer", "password": "Y@na789#"},
-            {"username": "Dany", "firstname": "Dany", "role": "engineer", "password": "D@ny012$"},
-            {"username": "Jack", "firstname": "Jack", "role": "manager", "password": "J@ck345%"},
-            {"username": "Sarah", "firstname": "Sarah Johnson", "role": "manager", "password": "S@rah567&"},
-            {"username": "Mike", "firstname": "Mike Chen", "role": "engineer", "password": "M!ke890*"},
-            {"username": "Emily", "firstname": "Emily Davis", "role": "engineer", "password": "Em!ly234#"},
-            {"username": "Alex", "firstname": "Alex Martinez", "role": "manager", "password": "Al3x567$"},
+            {"username": "Preet", "firstname": "Preet", "role": "admin", "password": "P@ss123!", "assigned_pages": ["dashboard", "stock", "pick", "shipments", "inventory", "admin"]},
+            {"username": "Carlotta", "firstname": "Carlotta", "role": "admin", "password": "C@rl456@", "assigned_pages": ["dashboard", "stock", "pick", "shipments", "inventory", "admin"]},
+            {"username": "Yana", "firstname": "Yana", "role": "engineer", "password": "Y@na789#", "assigned_pages": ["dashboard", "stock", "pick", "shipments", "inventory"]},
+            {"username": "Dany", "firstname": "Dany", "role": "engineer", "password": "D@ny012$", "assigned_pages": ["dashboard", "stock", "pick", "shipments", "inventory"]},
+            {"username": "Jack", "firstname": "Jack", "role": "manager", "password": "J@ck345%", "assigned_pages": ["dashboard", "stock", "pick", "shipments", "inventory"]},
+            {"username": "Sarah", "firstname": "Sarah", "role": "manager", "password": "S@rah567&", "assigned_pages": ["dashboard", "stock", "pick", "shipments", "inventory"]},
+            {"username": "Mike", "firstname": "Mike", "role": "engineer", "password": "M!ke890*", "assigned_pages": ["dashboard", "stock", "pick", "shipments", "inventory"]},
+            {"username": "Emily", "firstname": "Emily", "role": "engineer", "password": "Em!ly234#", "assigned_pages": ["dashboard", "stock", "pick", "shipments", "inventory"]},
+            {"username": "Alex", "firstname": "Alex", "role": "manager", "password": "Al3x567$", "assigned_pages": ["dashboard", "stock", "pick", "shipments", "inventory"]},
         ]
 
         users = []
@@ -93,53 +93,42 @@ def seed_database():
         # Create shipments (packing slips)
         print("Creating shipments...")
         today = datetime.now().date()
-        shipments_data = [
-            {
-                "our_name": "Flowventory",
-                "our_address": "University of North Carolina at Charlotte\n9201 University City Blvd\nCharlotte, NC 28223",
-                "bill_to": "Cisco Systems Inc\n123 Tech Drive\nSan Jose, CA 95134",
-                "ship_to": "UNCC Main Campus\n9201 University City Blvd\nCharlotte, NC 28223",
-                "invoice_number": "INV-2024-001",
-                "invoice_date": today,
-                "due_date": today + timedelta(days=30),
-                "ship_via": "FedEx",
-                "order_number": "ORD-2024-001",
-                "qty": 5,
-                "item_type": "Network Equipment",
-                "item_desc": "Cisco Catalyst 9300 48-Port Switch",
-                "order_id": orders[0].id
-            },
-            {
-                "our_name": "Flowventory",
-                "our_address": "University of North Carolina at Charlotte\n9201 University City Blvd\nCharlotte, NC 28223",
-                "bill_to": "Dell Technologies\n456 Server Lane\nAustin, TX 78701",
-                "ship_to": "UNCC Server Room\n9201 University City Blvd\nCharlotte, NC 28223",
-                "invoice_number": "INV-2024-002",
-                "invoice_date": today - timedelta(days=2),
-                "due_date": today + timedelta(days=28),
-                "ship_via": "UPS Ground",
-                "order_number": "ORD-2024-002",
-                "qty": 3,
-                "item_type": "Servers",
-                "item_desc": "Dell PowerEdge R740 Server",
-                "order_id": orders[1].id
-            },
-            {
-                "our_name": "Flowventory",
-                "our_address": "University of North Carolina at Charlotte\n9201 University City Blvd\nCharlotte, NC 28223",
-                "bill_to": "Cisco Systems Inc\n123 Tech Drive\nSan Jose, CA 95134",
-                "ship_to": "UNCC Network Closet\n9201 University City Blvd\nCharlotte, NC 28223",
-                "invoice_number": "INV-2024-003",
-                "invoice_date": today - timedelta(days=7),
-                "due_date": today + timedelta(days=23),
-                "ship_via": "FedEx Express",
-                "order_number": "ORD-2024-003",
-                "qty": 10,
-                "item_type": "Network Equipment",
-                "item_desc": "Cisco Meraki MR46 Access Point",
-                "order_id": orders[2].id
-            },
+        # Generate more shipments data
+        companies = [
+            {"name": "Cisco Systems Inc", "address": "123 Tech Drive\nSan Jose, CA 95134"},
+            {"name": "Dell Technologies", "address": "456 Server Lane\nAustin, TX 78701"},
+            {"name": "HP Enterprise", "address": "789 Hardware Blvd\nPalo Alto, CA 94304"},
+            {"name": "Lenovo Corp", "address": "321 Computer Way\nMorrisville, NC 27560"},
+            {"name": "Aruba Networks", "address": "654 WiFi Street\nSunnyvale, CA 94085"},
+            {"name": "Microsoft Corp", "address": "987 Software Ave\nRedmond, WA 98052"},
+            {"name": "VMware Inc", "address": "246 Virtual Dr\nPalo Alto, CA 94304"},
+            {"name": "Juniper Networks", "address": "135 Router Road\nSunnyvale, CA 94089"},
         ]
+
+        ship_vias = ["FedEx", "UPS", "USPS", "DHL", "Local Delivery", "Will Call"]
+        item_types = ["Network Equipment", "Servers", "Storage Devices", "Access Points", "Routers", "Switches", "Cables", "Components"]
+
+        shipments_data = []
+        for i in range(1, 21):  # Create 20 shipments
+            company = random.choice(companies)
+            order_idx = i % len(orders)
+
+            shipment = {
+                "our_name": "Flowventory",
+                "our_address": "University of North Carolina at Charlotte\n9201 University City Blvd\nCharlotte, NC 28223",
+                "bill_to": f"{company['name']}\n{company['address']}",
+                "ship_to": f"UNCC {'Main Campus' if i % 3 == 0 else 'Server Room' if i % 3 == 1 else 'Network Closet'}\n9201 University City Blvd\nCharlotte, NC 28223",
+                "invoice_number": f"INV-2024-{i:03d}",
+                "invoice_date": today - timedelta(days=random.randint(0, 30)),
+                "due_date": today + timedelta(days=random.randint(15, 60)),
+                "ship_via": random.choice(ship_vias),
+                "order_number": f"ORD-2024-{i:03d}",
+                "qty": random.randint(1, 25),
+                "item_type": random.choice(item_types),
+                "item_desc": f"{company['name'].split()[0]} {random.choice(item_types)} - Model {random.randint(100, 999)}",
+                "order_id": orders[order_idx].id
+            }
+            shipments_data.append(shipment)
 
         shipments = []
         for shipment_data in shipments_data:

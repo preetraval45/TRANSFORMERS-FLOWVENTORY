@@ -1,0 +1,321 @@
+@startuml Flowventory Use Case Diagram - Updated
+
+left to right direction
+skinparam packageStyle rectangle
+
+' Actors
+actor "Admin User" as Admin
+actor "Engineer User" as Engineer
+actor "Manager User" as Manager
+actor "Client User" as Client
+actor "Database System" as DB
+actor "File Storage" as Storage
+
+' System boundary
+rectangle "Flowventory System" {
+
+  ' ========== AUTHENTICATION MODULE ==========
+  package "Authentication" #LightBlue {
+    usecase "UC-1: Login to System" as UC1
+    usecase "UC-1E: Handle Invalid Credentials" as UC1E
+    usecase "UC-2: Logout from System" as UC2
+    usecase "UC-3: Maintain Session" as UC3
+    usecase "UC-3E: Handle Session Expiry" as UC3E
+  }
+
+  ' ========== USER MANAGEMENT MODULE ==========
+  package "User Management" #LightGreen {
+    usecase "UC-4: Create New User" as UC4
+    usecase "UC-4E: Handle Duplicate Username" as UC4E
+    usecase "UC-5: View All Users" as UC5
+    usecase "UC-6: Edit User Details" as UC6
+    usecase "UC-7: Delete User Account" as UC7
+    usecase "UC-8: Assign User Roles" as UC8
+    usecase "UC-9: Manage Page Permissions" as UC9
+  }
+
+  ' ========== INVENTORY MANAGEMENT MODULE ==========
+  package "Inventory Management" #LightYellow {
+    usecase "UC-10: Add New Inventory Item" as UC10
+    usecase "UC-10E: Handle Duplicate Item ID" as UC10E
+    usecase "UC-11: View Inventory List" as UC11
+    usecase "UC-12: Search Inventory" as UC12
+    usecase "UC-12E: Handle No Results Found" as UC12E
+    usecase "UC-13: Edit Inventory Item" as UC13
+    usecase "UC-14: Delete Inventory Item" as UC14
+    usecase "UC-15: Set Warehouse Location" as UC15
+    usecase "UC-16: Update Item Quantity" as UC16
+    usecase "UC-16E: Handle Negative Quantity" as UC16E
+    usecase "UC-17: Change Item Status" as UC17
+  }
+
+  ' ========== STOCK MANAGEMENT MODULE ==========
+  package "Stock Management" #Pink {
+    usecase "UC-18: Stock New Parts" as UC18
+    usecase "UC-18E: Handle Invalid Stock Data" as UC18E
+    usecase "UC-19: View Stock Levels" as UC19
+    usecase "UC-20: Update Stock Location" as UC20
+  }
+
+  ' ========== PICK/PULL OPERATIONS MODULE ==========
+  package "Pick Operations" #LightCyan {
+    usecase "UC-21: Search Item to Pick" as UC21
+    usecase "UC-21E: Handle Item Not Found" as UC21E
+    usecase "UC-22: Pick Item from Inventory" as UC22
+    usecase "UC-22E: Handle Insufficient Quantity" as UC22E
+    usecase "UC-23: View Item Location" as UC23
+    usecase "UC-24: Update Quantity After Pick" as UC24
+  }
+
+  ' ========== SHIPMENT MANAGEMENT MODULE ==========
+  package "Shipment Management" #LightGray {
+    usecase "UC-25: Create New Shipment" as UC25
+    usecase "UC-25E: Handle Duplicate Invoice" as UC25E
+    usecase "UC-26: View Shipment List" as UC26
+    usecase "UC-27: Update Shipment Status" as UC27
+    usecase "UC-28: Link Shipment to Order" as UC28
+    usecase "UC-29: Upload Packing Slip" as UC29
+    usecase "UC-29E: Handle Invalid File Format" as UC29E
+    usecase "UC-30: View Packing Slip" as UC30
+  }
+
+  ' ========== DASHBOARD & ANALYTICS MODULE ==========
+  package "Dashboard & Analytics" #Lavender {
+    usecase "UC-31: View Dashboard Metrics" as UC31
+    usecase "UC-31E: Handle API Failure" as UC31E
+    usecase "UC-32: View Recent Activity" as UC32
+    usecase "UC-33: Quick Navigation Actions" as UC33
+  }
+
+  ' ========== ORDER MANAGEMENT MODULE ==========
+  package "Order Management" #Wheat {
+    usecase "UC-34: Create New Order" as UC34
+    usecase "UC-35: View Orders" as UC35
+    usecase "UC-36: Update Order Status" as UC36
+    usecase "UC-37: Link Order to Shipment" as UC37
+  }
+}
+
+' ========== ACTOR RELATIONSHIPS ==========
+
+' Admin - Full Access
+Admin --> UC1
+Admin --> UC2
+Admin --> UC4
+Admin --> UC4E
+Admin --> UC5
+Admin --> UC6
+Admin --> UC7
+Admin --> UC8
+Admin --> UC9
+Admin --> UC10
+Admin --> UC10E
+Admin --> UC11
+Admin --> UC12
+Admin --> UC13
+Admin --> UC14
+Admin --> UC15
+Admin --> UC16
+Admin --> UC17
+Admin --> UC18
+Admin --> UC19
+Admin --> UC20
+Admin --> UC21
+Admin --> UC22
+Admin --> UC23
+Admin --> UC24
+Admin --> UC25
+Admin --> UC26
+Admin --> UC27
+Admin --> UC28
+Admin --> UC29
+Admin --> UC30
+Admin --> UC31
+Admin --> UC32
+Admin --> UC33
+Admin --> UC34
+Admin --> UC35
+Admin --> UC36
+Admin --> UC37
+
+' Engineer - Technical Access
+Engineer --> UC1
+Engineer --> UC1E
+Engineer --> UC2
+Engineer --> UC10
+Engineer --> UC10E
+Engineer --> UC11
+Engineer --> UC12
+Engineer --> UC12E
+Engineer --> UC13
+Engineer --> UC14
+Engineer --> UC15
+Engineer --> UC16
+Engineer --> UC16E
+Engineer --> UC17
+Engineer --> UC18
+Engineer --> UC18E
+Engineer --> UC19
+Engineer --> UC20
+Engineer --> UC21
+Engineer --> UC21E
+Engineer --> UC22
+Engineer --> UC22E
+Engineer --> UC23
+Engineer --> UC24
+Engineer --> UC25
+Engineer --> UC25E
+Engineer --> UC26
+Engineer --> UC27
+Engineer --> UC28
+Engineer --> UC29
+Engineer --> UC29E
+Engineer --> UC30
+Engineer --> UC31
+Engineer --> UC31E
+Engineer --> UC32
+Engineer --> UC33
+
+' Manager - Management Access
+Manager --> UC1
+Manager --> UC2
+Manager --> UC11
+Manager --> UC12
+Manager --> UC19
+Manager --> UC21
+Manager --> UC22
+Manager --> UC23
+Manager --> UC26
+Manager --> UC31
+Manager --> UC32
+Manager --> UC33
+Manager --> UC35
+
+' Client - Limited Access
+Client --> UC1
+Client --> UC1E
+Client --> UC2
+Client --> UC31
+Client --> UC31E
+Client --> UC32
+
+' ========== INCLUDE RELATIONSHIPS ==========
+UC1 ..> UC3 : <<include>>
+UC1 .up.> UC1E : <<extend>>
+UC3 .up.> UC3E : <<extend>>
+UC4 .up.> UC4E : <<extend>>
+UC10 .up.> UC10E : <<extend>>
+UC12 .up.> UC12E : <<extend>>
+UC16 .up.> UC16E : <<extend>>
+UC18 .up.> UC18E : <<extend>>
+UC21 .up.> UC21E : <<extend>>
+UC22 .up.> UC22E : <<extend>>
+UC25 .up.> UC25E : <<extend>>
+UC29 .up.> UC29E : <<extend>>
+UC31 .up.> UC31E : <<extend>>
+
+UC22 ..> UC24 : <<include>>
+UC18 ..> UC10 : <<include>>
+UC4 ..> UC8 : <<include>>
+UC4 ..> UC9 : <<include>>
+UC25 ..> UC28 : <<include>>
+
+' ========== SYSTEM RELATIONSHIPS ==========
+UC1 ..> DB : <<communicate>>
+UC4 ..> DB : <<communicate>>
+UC5 ..> DB : <<communicate>>
+UC6 ..> DB : <<communicate>>
+UC7 ..> DB : <<communicate>>
+UC10 ..> DB : <<communicate>>
+UC11 ..> DB : <<communicate>>
+UC12 ..> DB : <<communicate>>
+UC13 ..> DB : <<communicate>>
+UC14 ..> DB : <<communicate>>
+UC16 ..> DB : <<communicate>>
+UC18 ..> DB : <<communicate>>
+UC21 ..> DB : <<communicate>>
+UC22 ..> DB : <<communicate>>
+UC25 ..> DB : <<communicate>>
+UC26 ..> DB : <<communicate>>
+UC31 ..> DB : <<communicate>>
+UC34 ..> DB : <<communicate>>
+UC35 ..> DB : <<communicate>>
+
+UC29 ..> Storage : <<communicate>>
+UC30 ..> Storage : <<communicate>>
+
+' ========== NOTES ==========
+
+note right of UC1
+  Normal Flow:
+  1. User enters credentials
+  2. System validates credentials
+  3. System creates session
+  4. User redirected to dashboard
+
+  Error Flow (UC-1E):
+  1. User enters invalid credentials
+  2. System displays error message
+  3. User remains on login page
+end note
+
+note right of UC10
+  Normal Flow:
+  1. User fills item details
+  2. System validates data
+  3. System saves to database
+  4. Success message displayed
+
+  Error Flow (UC-10E):
+  1. User enters duplicate Item ID
+  2. System detects conflict
+  3. Error message displayed
+  4. User must use unique ID
+end note
+
+note right of UC22
+  Normal Flow:
+  1. User searches for item
+  2. System displays item location
+  3. User enters pick quantity
+  4. System validates quantity
+  5. System updates inventory
+  6. Success message displayed
+
+  Error Flow (UC-22E):
+  1. User enters quantity > available
+  2. System detects insufficient stock
+  3. Error message displayed
+  4. Pick operation cancelled
+end note
+
+note right of UC29
+  Normal Flow:
+  1. User drags/selects file
+  2. System validates file type
+  3. System uploads to storage
+  4. System saves metadata
+  5. Success message displayed
+
+  Error Flow (UC-29E):
+  1. User uploads invalid file type
+  2. System validates and rejects
+  3. Error message displayed
+  4. Upload cancelled
+end note
+
+note bottom of DB
+  PostgreSQL Database
+  - User authentication
+  - Data persistence
+  - Transaction management
+end note
+
+note bottom of Storage
+  File Storage System
+  - Packing slip PDFs
+  - Document uploads
+  - Metadata management
+end note
+
+@enduml

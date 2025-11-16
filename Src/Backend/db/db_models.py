@@ -10,6 +10,7 @@ class User(Base):
     firstname = Column(String, nullable=False)
     role = Column(String, nullable=False)  # "client", "engineer", "admin"
     password = Column(String, nullable=False)  # Should be hashed in production
+    assigned_pages = Column(JSON, nullable=True)  # Array of page names like ["dashboard", "inventory"]
 
 
 class Order(Base):

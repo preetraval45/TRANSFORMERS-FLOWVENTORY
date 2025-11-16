@@ -28,7 +28,9 @@ export default function Inventory() {
     try {
       const response = await fetch(`${API_BASE_URL}/inventory/`);
       const data = await response.json();
-      setInventoryData(data);
+      // Sort by ID descending (newest first)
+      const sortedData = data.sort((a, b) => b.id - a.id);
+      setInventoryData(sortedData);
     } catch (error) {
       console.error('Error fetching inventory data:', error);
       setInventoryData([]);
@@ -232,19 +234,19 @@ export default function Inventory() {
                             <div className="flex space-x-2">
                               <button
                                 onClick={(event) => { event.stopPropagation(); setShowDetails(item); }}
-                                className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-xs font-medium"
+                                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
                               >
                                 👁️ View
                               </button>
                               <button
                                 onClick={(event) => handleEditClick(item, event)}
-                                className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-xs font-medium"
+                                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium"
                               >
                                 ✏️ Edit
                               </button>
                               <button
                                 onClick={(event) => { event.stopPropagation(); setEditingItem(item); handleDelete(); }}
-                                className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-xs font-medium"
+                                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium"
                               >
                                 🗑️ Delete
                               </button>
@@ -335,8 +337,8 @@ export default function Inventory() {
 
         {/* Details Modal */}
         {showDetails && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg max-w-2xl w-full max-h-96 overflow-y-auto">
+          <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
               <div className="p-6">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-xl font-semibold text-gray-900">Inventory Detail</h2>
@@ -436,20 +438,20 @@ export default function Inventory() {
           </div>
         )}
         {editingItem && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-lg w-full">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 rounded-t-2xl flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-white">
+                Edit Inventory Item
+              </h2>
+              <button
+                onClick={() => setEditingItem(null)}
+                className="text-white hover:text-gray-200 text-3xl leading-none font-light"
+              >
+                ×
+              </button>
+            </div>
             <div className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold text-gray-900">
-                  Edit Inventory Item
-                </h2>
-                <button
-                  onClick={() => setEditingItem(null)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  ✕
-                </button>
-              </div>
 
               <div className="space-y-4">
                 <div>
@@ -495,24 +497,24 @@ export default function Inventory() {
                 </div>
               </div>
 
-              <div className="mt-6 flex justify-end space-x-3">
+              <div className="flex justify-end space-x-3 mt-6 pt-4 border-t border-gray-200">
                 <button
                   onClick={() => setEditingItem(null)}
-                  className="px-4 py-2 rounded-md border border-gray-300 text-gray-700"
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium"
                 >
                   Cancel
                 </button>
                 <button
-                  onClick={handleSaveEdit}
-                  className="px-4 py-2 rounded-md bg-blue-600 text-white font-medium"
-                >
-                  Save
-                </button>
-                <button
                   onClick={handleDelete}
-                  className="px-4 py-2 rounded-md bg-red-600 text-white font-medium"
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium"
                 >
                   Delete
+                </button>
+                <button
+                  onClick={handleSaveEdit}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+                >
+                  Save
                 </button>
               </div>
             </div>
