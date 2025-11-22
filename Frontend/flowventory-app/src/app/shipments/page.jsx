@@ -171,7 +171,7 @@ export default function Shipments() {
         {/* Header */}
         <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl shadow-xl p-8 mb-8 text-white">
           <h1 className="text-4xl font-bold mb-2 flex items-center">
-            <span className="mr-3">📦</span> Packing Slips
+            Packing Slips
           </h1>
           <p className="text-purple-100 text-lg">Create and manage shipment packing slips</p>
         </div>
@@ -181,7 +181,7 @@ export default function Shipments() {
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden mb-8">
           <div className="bg-gradient-to-r from-purple-500 to-pink-500 px-8 py-6">
             <h2 className="text-2xl font-bold text-white flex items-center">
-              <span className="mr-2">✍️</span> {editingSlip ? 'Edit' : 'Create'} Packing Slip
+              {editingSlip ? 'Edit' : 'Create'} Packing Slip
             </h2>
             <p className="text-purple-100 mt-1">Fill out the form below</p>
           </div>
@@ -189,7 +189,7 @@ export default function Shipments() {
           <form onSubmit={handleSubmit} className="p-8">
             {/* Company Information */}
             <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b-2 border-purple-200">🏢 Our Information</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b-2 border-purple-200">Our Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Company Name *</label>
@@ -204,7 +204,7 @@ export default function Shipments() {
 
             {/* Billing & Shipping */}
             <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b-2 border-purple-200">📬 Billing & Shipping</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b-2 border-purple-200">Billing & Shipping</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Bill To *</label>
@@ -219,7 +219,7 @@ export default function Shipments() {
 
             {/* Order Details */}
             <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b-2 border-purple-200">📝 Order Details</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b-2 border-purple-200">Order Details</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Invoice Number *</label>
@@ -248,7 +248,7 @@ export default function Shipments() {
 
             {/* Items */}
             <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b-2 border-purple-200">📦 Item Details</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b-2 border-purple-200">Item Details</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Quantity *</label>
@@ -329,7 +329,7 @@ export default function Shipments() {
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
           <div className="bg-gradient-to-r from-purple-500 to-pink-500 px-8 py-6">
             <h2 className="text-2xl font-bold text-white flex items-center">
-              <span className="mr-2">📋</span> All Packing Slips
+               All Packing Slips
             </h2>
             <p className="text-purple-100 mt-1">View, edit, and print packing slips</p>
           </div>

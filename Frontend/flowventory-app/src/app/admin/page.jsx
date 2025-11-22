@@ -180,7 +180,7 @@ export default function UserManagement() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold mb-2 flex items-center">
-                <span className="mr-3">👥</span> User Management
+                User Management
               </h1>
               <p className="text-blue-100 text-lg">Manage system users, roles, and permissions</p>
             </div>
@@ -197,7 +197,7 @@ export default function UserManagement() {
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
           <div className="bg-gradient-to-r from-blue-500 to-purple-500 px-8 py-6">
             <h2 className="text-2xl font-bold text-white flex items-center">
-              <span className="mr-2">📋</span> System Users
+               System Users
             </h2>
             <p className="text-blue-100 mt-1">View and manage all system users</p>
           </div>
@@ -284,13 +284,13 @@ export default function UserManagement() {
                                 onClick={() => handleEditUser(userData)}
                                 className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
                               >
-                                ✏️ Edit
+                                Edit
                               </button>
                               <button
                                 onClick={() => handleDeleteUser(userData.id)}
                                 className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium"
                               >
-                                🗑️ Delete
+                                Delete
                               </button>
                             </div>
                           </td>

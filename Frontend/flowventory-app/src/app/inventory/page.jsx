@@ -236,19 +236,19 @@ export default function Inventory() {
                                 onClick={(event) => { event.stopPropagation(); setShowDetails(item); }}
                                 className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
                               >
-                                👁️ View
+                                View
                               </button>
                               <button
                                 onClick={(event) => handleEditClick(item, event)}
                                 className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium"
                               >
-                                ✏️ Edit
+                                Edit
                               </button>
                               <button
                                 onClick={(event) => { event.stopPropagation(); setEditingItem(item); handleDelete(); }}
                                 className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium"
                               >
-                                🗑️ Delete
+                                Delete
                               </button>
                             </div>
                           </td>

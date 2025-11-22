@@ -109,12 +109,12 @@ export default function Pick() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold mb-2 flex items-center">
-                <span className="mr-3">📤</span> Pick Parts
+                Pick Parts
               </h1>
               <p className="text-blue-100 text-lg">Remove components from inventory • Safety validated • Audit tracked</p>
             </div>
             <a href="/inventory" className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-all transform hover:scale-105 shadow-lg">
-              📦 View Inventory
+              View Inventory
             </a>
           </div>
         </div>
@@ -137,7 +137,7 @@ export default function Pick() {
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
           <div className="bg-gradient-to-r from-blue-500 to-purple-500 px-8 py-6">
             <h2 className="text-2xl font-bold text-white flex items-center">
-              <span className="mr-2">➖</span> Remove from Inventory
+              Remove from Inventory
             </h2>
             <p className="text-blue-100 mt-1">Safely remove parts with validation and confirmation</p>
           </div>
@@ -146,7 +146,7 @@ export default function Pick() {
             {/* Search Section */}
             <div className="mb-8">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b-2 border-blue-200">
-                🔍 Part Identification & Search
+                Part Identification & Search
               </h3>
               <div className="grid grid-cols-1 gap-4">
                 <div>
@@ -168,7 +168,7 @@ export default function Pick() {
                       disabled={loading}
                       className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-all disabled:opacity-50"
                     >
-                      🔍 Search
+                      Search
                     </button>
                   </div>
                 </div>
@@ -212,7 +212,7 @@ export default function Pick() {
             {selectedItem && (
               <div className="mb-8">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b-2 border-blue-200">
-                  📊 Pick Quantity
+                  Pick Quantity
                 </h3>
                 <div className="max-w-md">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -249,7 +249,7 @@ export default function Pick() {
                 onClick={() => window.location.href = '/stock'}
                 className="bg-green-600 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-green-700 transition-all transform hover:scale-105 shadow-xl"
               >
-                📥 Go to Stock
+                Go to Stock
               </button>
             </div>
           </form>
@@ -258,7 +258,7 @@ export default function Pick() {
         {/* Recent Activity */}
         {selectedItem && (
           <div className="mt-8 bg-white rounded-xl shadow-lg p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">📋 Part Location Details</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4"> Part Location Details</h3>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               <div className="text-center p-4 bg-blue-50 rounded-lg">
                 <p className="text-xs text-gray-600 mb-1">Zone</p>

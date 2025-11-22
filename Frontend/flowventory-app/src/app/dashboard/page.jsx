@@ -139,16 +139,13 @@ export default function Dashboard() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold mb-2 flex items-center">
-                <span className="mr-3">📊</span> Dashboard
+                 Dashboard
               </h1>
               <p className="text-indigo-100 text-lg">
                 Welcome back, {user?.firstName}! Here's your inventory overview.
               </p>
             </div>
             <div className="hidden md:block">
-              <div className="w-20 h-20 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                <span className="text-4xl">📈</span>
-              </div>
             </div>
           </div>
         </div>
@@ -323,9 +320,6 @@ export default function Dashboard() {
                       <span className="text-4xl font-bold bg-gradient-to-r from-red-600 to-rose-600 bg-clip-text text-transparent">
                         {dashboardData.flaggedIssues}
                       </span>
-                      {dashboardData.flaggedIssues > 0 && (
-                        <span className="ml-2 text-red-500 text-2xl">⚠️</span>
-                      )}
                     </div>
                     <div className="text-sm text-slate-600 mt-1 font-medium">
                       Flagged Issues
@@ -354,14 +348,11 @@ export default function Dashboard() {
               {/* Recent Activity */}
               <div className="bg-white p-8 rounded-3xl border border-slate-200/50 shadow-xl backdrop-blur-sm">
                 <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center">
-                  <span className="mr-3">📈</span> Recent Activity
+                   Recent Activity
                 </h2>
                 <div className="space-y-4">
                   {recentActivity.length === 0 ? (
                     <div className="text-center py-8">
-                      <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                        <span className="text-3xl">📋</span>
-                      </div>
                       <p className="text-slate-500 font-medium">
                         No recent activity
                       </p>
@@ -400,13 +391,13 @@ export default function Dashboard() {
                     href="/inventory"
                     className="w-full bg-gradient-to-r from-emerald-600 to-green-600 text-white py-3 px-6 rounded-2xl text-sm font-bold hover:from-emerald-700 hover:to-green-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl block text-center"
                   >
-                    📥 Inventory
+                    Inventory
                   </Link>
                   <Link
                     href="/shipments"
                     className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-6 rounded-2xl text-sm font-bold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl block text-center"
                   >
-                    📤 Shipments
+                    Shipments
                   </Link>
                 </div>
               </div>
