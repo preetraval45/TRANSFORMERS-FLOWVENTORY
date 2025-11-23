@@ -32,14 +32,14 @@ This section describes the detailed requirements for Phase 2 of the Flowventory 
 ### 1.2 Functional Requirements
 
 #### FR-1: Authentication and Authorization System
-- **FR-1.1**: The system shall support role-based access control (RBAC) with three user roles: Admin, Engineer, and Client
+- **FR-1.1**: The system shall support role-based access control (RBAC) with three user roles: Admin, Engineer, and Manager
 - **FR-1.2**: The system shall authenticate users via username and password
 - **FR-1.3**: The system shall maintain user sessions using browser localStorage
 - **FR-1.4**: The system shall automatically redirect unauthenticated users to the login page
 - **FR-1.5**: The system shall display different navigation menus based on user role
   - Admin: Dashboard, Stock, Pick, Shipments, Inventory, Admin
-  - Engineer: Dashboard, Stock, Pick, Shipments, Inventory
-  - Client: Dashboard only
+  - Engineer: Dashboard, Stock, Shipments, Inventory
+  - Manager: Dashboard, Stock, Pick, Shipments, Inventory
 - **FR-1.6**: The system shall provide a logout mechanism that clears the user session
 
 #### FR-2: Inventory Management
@@ -332,10 +332,10 @@ This section provides a comprehensive list of test cases used for testing the Fl
   - **Input**: Username: engineer@flowventory.com, Password: engineer123
   - **Expected Output**: Successful login, limited navigation (no Admin menu)
 
-- **TC-AUTH-003**: Valid Login - Client User
-  - **Functionality Tested**: User authentication with client role
-  - **Input**: Username: client@flowventory.com, Password: client123
-  - **Expected Output**: Successful login, dashboard-only access
+- **TC-AUTH-003**: Valid Login - Manager User
+  - **Functionality Tested**: User authentication with manager role
+  - **Input**: Username: Jack, Password: J@ck345%
+  - **Expected Output**: Successful login, access to Dashboard, Stock, Pick, Shipments, Inventory
 
 - **TC-AUTH-004**: Invalid Login - Wrong Password
   - **Functionality Tested**: Authentication error handling
@@ -1122,7 +1122,7 @@ The Admin page allows administrators to manage user accounts.
 2. View the user list showing:
    - Username
    - First Name
-   - Role (Admin, Engineer, Client)
+   - Role (Admin, Engineer, Manager)
    - Status (Active, Inactive)
 
 ![Admin Page](placeholder_admin.png)
@@ -1134,7 +1134,7 @@ The Admin page allows administrators to manage user accounts.
    - Username (email format recommended)
    - Password (must meet security requirements)
    - First Name
-   - Role (select from dropdown: Admin, Engineer, Client)
+   - Role (select from dropdown: Admin, Engineer, Manager)
    - Status (Active or Inactive)
 3. Click "Create User"
 4. New user appears in the list

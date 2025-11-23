@@ -109,7 +109,7 @@ This is the **primary deliverable document** containing all required sections:
 ### Technical
 - ✅ Full-stack application (Next.js + FastAPI + PostgreSQL)
 - ✅ Docker containerization
-- ✅ Role-based access control (Admin, Engineer, Client)
+- ✅ Role-based access control (Admin, Engineer, Manager)
 - ✅ 63 test cases with 95.2% pass rate
 - ✅ Comprehensive UML diagrams including sequence diagrams
 - ✅ API documentation with Swagger UI

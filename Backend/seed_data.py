@@ -25,12 +25,12 @@ def seed_database():
         users_data = [
             {"username": "Preet", "firstname": "Preet", "role": "admin", "password": "P@ss123!", "assigned_pages": ["dashboard", "stock", "pick", "shipments", "inventory", "admin"]},
             {"username": "Carlotta", "firstname": "Carlotta", "role": "admin", "password": "C@rl456@", "assigned_pages": ["dashboard", "stock", "pick", "shipments", "inventory", "admin"]},
-            {"username": "Yana", "firstname": "Yana", "role": "engineer", "password": "Y@na789#", "assigned_pages": ["dashboard", "stock", "pick", "shipments", "inventory"]},
-            {"username": "Dany", "firstname": "Dany", "role": "engineer", "password": "D@ny012$", "assigned_pages": ["dashboard", "stock", "pick", "shipments", "inventory"]},
+            {"username": "Yana", "firstname": "Yana", "role": "engineer", "password": "Y@na789#", "assigned_pages": ["dashboard", "stock", "shipments", "inventory"]},
+            {"username": "Dany", "firstname": "Dany", "role": "engineer", "password": "D@ny012$", "assigned_pages": ["dashboard", "stock", "shipments", "inventory"]},
             {"username": "Jack", "firstname": "Jack", "role": "manager", "password": "J@ck345%", "assigned_pages": ["dashboard", "stock", "pick", "shipments", "inventory"]},
             {"username": "Sarah", "firstname": "Sarah", "role": "manager", "password": "S@rah567&", "assigned_pages": ["dashboard", "stock", "pick", "shipments", "inventory"]},
-            {"username": "Mike", "firstname": "Mike", "role": "engineer", "password": "M!ke890*", "assigned_pages": ["dashboard", "stock", "pick", "shipments", "inventory"]},
-            {"username": "Emily", "firstname": "Emily", "role": "engineer", "password": "Em!ly234#", "assigned_pages": ["dashboard", "stock", "pick", "shipments", "inventory"]},
+            {"username": "Mike", "firstname": "Mike", "role": "engineer", "password": "M!ke890*", "assigned_pages": ["dashboard", "stock", "shipments", "inventory"]},
+            {"username": "Emily", "firstname": "Emily", "role": "engineer", "password": "Em!ly234#", "assigned_pages": ["dashboard", "stock", "shipments", "inventory"]},
             {"username": "Alex", "firstname": "Alex", "role": "manager", "password": "Al3x567$", "assigned_pages": ["dashboard", "stock", "pick", "shipments", "inventory"]},
         ]
 

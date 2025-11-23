@@ -22,7 +22,7 @@ export default function Navigation() {
   const navItems = [
     { name: "Dashboard", path: "/dashboard", roles: ["admin", "engineer", "manager"] },
     { name: "Stock", path: "/stock", roles: ["admin", "engineer", "manager"] },
-    { name: "Pick", path: "/pick", roles: ["admin", "engineer", "manager"] },
+    { name: "Pick", path: "/pick", roles: ["admin", "manager"] },
     { name: "Shipments", path: "/shipments", roles: ["admin", "engineer", "manager"] },
     { name: "Inventory", path: "/inventory", roles: ["admin", "engineer", "manager"] },
     { name: "User Management", path: "/admin", roles: ["admin"] },

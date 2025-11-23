@@ -4,7 +4,7 @@ A modern inventory management system built with Next.js, featuring role-based au
 
 ## 🚀 Features
 
-- **Role-based Authentication**: Support for Admin, Engineer, and Client roles
+- **Role-based Authentication**: Support for Admin, Engineer, and Manager roles
 - **Responsive Design**: Clean, modern UI with Tailwind CSS
 - **Inventory Management**: Track shipments, vendors, and inventory items
 - **User Management**: Admin panel for managing users (admin-only access)
@@ -55,11 +55,13 @@ The system comes with pre-configured test accounts:
 - **Username**: `Carlotta` | **Password**: `C@rl456@`
 - **Username**: `Yana` | **Password**: `Y@na789#`
 
-### Engineer User
+### Engineer Users
 - **Username**: `Dany` | **Password**: `D@ny012$`
+- **Username**: `Yana` | **Password**: `Y@na789#`
 
-### Client User
+### Manager Users
 - **Username**: `Jack` | **Password**: `J@ck345%`
+- **Username**: `Sarah` | **Password**: `S@rah567&`
 
 ## 🛠 Tech Stack
 
@@ -209,6 +211,6 @@ This project is part of the Transformers team deliverable for UNC Charlotte.
 - Carlotta (Admin)
 - Yana (Admin)
 - Dany (Engineer)
-- Jack (Client)
+- Jack (Manager)
 
 For technical support or feature requests, please contact the development team.

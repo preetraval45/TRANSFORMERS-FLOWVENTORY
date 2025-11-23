@@ -45,7 +45,7 @@ TRANSFORMERS/
 
 - Password-protected links for external vendors
 - Audit logs for every upload, edit, and access event
-- Role-based access (client, engineer, manager)
+- Role-based access (admin, engineer, manager)
 
 ### Client Side Features
 
@@ -109,7 +109,7 @@ Access the application at `http://localhost`
 
 - **Admin**: `Preet` / `P@ss123!`
 - **Engineer**: `Dany` / `D@ny012$`
-- **Client**: `Jack` / `J@ck345%`
+- **Manager**: `Jack` / `J@ck345%`
 
 ## 📄 Documentation
 

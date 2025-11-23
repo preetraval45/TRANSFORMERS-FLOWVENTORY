@@ -19,22 +19,22 @@ Use these credentials to test the Flowventory application:
 - **Username**: `Yana`
   **Password**: `Y@na789#`
   **Role**: Engineer
-  **Access**: Dashboard, Stock, Pick, Shipments, Inventory
+  **Access**: Dashboard, Stock, Shipments, Inventory
 
 - **Username**: `Dany`
   **Password**: `D@ny012$`
   **Role**: Engineer
-  **Access**: Dashboard, Stock, Pick, Shipments, Inventory
+  **Access**: Dashboard, Stock, Shipments, Inventory
 
 - **Username**: `Mike`
   **Password**: `M!ke890*`
   **Role**: Engineer
-  **Access**: Dashboard, Stock, Pick, Shipments, Inventory
+  **Access**: Dashboard, Stock, Shipments, Inventory
 
 - **Username**: `Emily`
   **Password**: `Em!ly234#`
   **Role**: Engineer
-  **Access**: Dashboard, Stock, Pick, Shipments, Inventory
+  **Access**: Dashboard, Stock, Shipments, Inventory
 
 ### Manager Users (Management Access)
 - **Username**: `Jack`
@@ -74,9 +74,9 @@ Use these credentials to test the Flowventory application:
 ### Engineer
 - ✅ Dashboard access
 - ✅ Add/edit inventory items
-- ✅ Pick items from inventory
 - ✅ Create/manage packing slips
 - ✅ View all inventory
+- ❌ No Pick page access
 - ❌ No User Management access
 
 ### Manager

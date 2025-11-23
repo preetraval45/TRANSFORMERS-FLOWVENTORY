@@ -2738,7 +2738,7 @@ GET http://localhost:8000/
 [
   {"username": "Preet", "password": "P@ss123!", "role": "admin"},
   {"username": "Dany", "password": "D@ny012$", "role": "engineer"},
-  {"username": "Jack", "password": "J@ck345%", "role": "client"},
+  {"username": "Jack", "password": "J@ck345%", "role": "manager"},
   {"username": "Carlotta", "password": "C@rl456@", "role": "admin"},
   {"username": "Yana", "password": "Y@na789#", "role": "admin"}
 ]

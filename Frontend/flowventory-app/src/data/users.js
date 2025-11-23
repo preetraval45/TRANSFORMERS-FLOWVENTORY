@@ -39,7 +39,7 @@ export const users = [
     id: 5,
     username: 'Jack',
     password: 'J@ck345%',
-    role: 'client',
+    role: 'manager',
     status: 'Active',
     lastLogin: '2025-01-16',
     firstName: 'Jack'
