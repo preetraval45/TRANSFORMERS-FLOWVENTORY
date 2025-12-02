@@ -37,28 +37,42 @@
 
 ```
 TRANSFORMERS-FLOWVENTORY/
-├── Backend/                          # Python FastAPI backend application
-├── Database/                         # Database schemas and configurations
+├── src/                              # Source code directory (all code organized here)
+│   ├── backend/                      # Python FastAPI backend application
+│   │   ├── db/                       # Database models and ORM
+│   │   ├── routers/                  # API route handlers
+│   │   ├── main.py                   # FastAPI application entry
+│   │   ├── seed_data.py              # Database seeding script
+│   │   └── requirements.txt          # Python dependencies
+│   ├── frontend/                     # Next.js frontend application
+│   │   ├── src/                      # Source code
+│   │   │   ├── app/                  # App router pages
+│   │   │   ├── components/           # React components
+│   │   │   ├── contexts/             # React contexts
+│   │   │   └── data/                 # Mock data
+│   │   ├── public/                   # Static assets
+│   │   ├── package.json              # NPM dependencies
+│   │   └── Dockerfile                # Frontend container config
+│   ├── database/                     # Database documentation and schemas
+│   │   ├── README.md                 # Database documentation
+│   │   └── SCHEMA.sql                # Reference SQL schema
+│   └── scripts/                      # Utility scripts
+│       ├── generate_pdf.py           # PDF generation utility
+│       └── migrate_to_server_db.sh   # Database migration script
 ├── Docker/                           # Docker orchestration files
+│   ├── docker-compose.yml            # Multi-container setup
+│   └── nginx/                        # Nginx configuration
 ├── Documentation/                    # Project documentation
 │   ├── Minutes/                      # Meeting notes
 │   └── uml/                          # UML diagrams
-├── Frontend/                         # Next.js frontend application
-│   ├── flowventory-app/              # Main application
-│   └── UI/                           # Design mockups
 ├── submission/                       # Deliverable submission files
 ├── .git/                             # Git version control
 ├── .gitignore                        # Git ignore rules
 ├── .vscode/                          # VS Code workspace settings
 ├── README.md                         # Main project README
 ├── GROUP-INFO.md                     # Team member information
-├── TODO.md                           # Outstanding tasks
-├── Test_Cases_Report.md              # Original test cases (Phase 3)
 ├── DELIVERABLE_4_TEST_CASES.md       # Updated test cases (Phase 4)
 ├── PROJECT_STRUCTURE.md              # This file
-├── inspection-code-transformers.md   # Code inspection report
-├── NOTES DELIVERABLE 3.txt           # Phase 3 notes
-├── generate_pdf.py                   # PDF generation utility
 └── Transformers - Deliverable 4.docx # Deliverable document
 
 ```

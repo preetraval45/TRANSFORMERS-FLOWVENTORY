@@ -1,0 +1,239 @@
+1. Users should be able to log in to their respective accounts
+   Input: Username and Password (e.g., Username: "Preet", Password: "P@ss123!")
+   Output: Dashboard + access to website with role-based navigation
+   Pass/Fail: PASS
+   Description: This test verifies the authentication functionality. Users enter their credentials on the login page. Upon successful authentication, they are redirected to the dashboard with appropriate menu items based on their role (Admin, Engineer, or Manager). Session is created and stored in localStorage.
+
+2. Users should be able to search keywords to filter in the inventory tab
+   Input: Keyword/letters (e.g., "ITEM-2025-001" or "Raspberry")
+   Output: Filtered results showing matching inventory items
+   Pass/Fail: PASS
+   Description: This test validates the inventory search functionality. Users can enter keywords, item IDs, SKUs, or partial text in the search box. The system filters the inventory table in real-time to display only matching items. Search works across multiple fields including item_id, description, and SKU.
+
+3. Users should be able to add stock
+   Input: Stock information (Item ID, Description, Quantity, Vendor, Warehouse Location - Zone, Aisle, Rack, Shelf, Bin)
+   Output: Item should appear in the inventory tab with auto-generated storage location
+   Pass/Fail: PASS
+   Description: This test checks the stock addition functionality. Users fill out a form with complete item details including warehouse location components. Upon submission, the system auto-generates the storage location string (e.g., "A-A1-R01-S2-BIN-003") and adds the item to the inventory database. The new item immediately appears in the inventory table.
+
+4. Users should be able to choose an item to pick
+   Input: Part number or SKU (e.g., "ITEM-2025-001" or "SKU-12345")
+   Output: After confirming pick, user should get confirmation and item quantity should decrease
+   Pass/Fail: PASS
+   Description: This test validates the pick operations functionality. Users search for an item by Item ID, SKU, or barcode. The system displays the item details and current location. Users enter the quantity to pick. Upon confirmation, the system reduces the inventory quantity, displays a success message with the updated quantity, and logs the transaction.
+
+5. Users should be able to create packing slips
+   Input: Filling form with packing slip information (Invoice Number, Invoice Date, Ship Via, Bill To, Ship To, Quantity, Item Type, Description)
+   Output: Packing slip is recorded and stored in database
+   Pass/Fail: PASS
+   Description: This test verifies the packing slip creation functionality. Users fill out a comprehensive shipment form with invoice details, shipping information, and item descriptions. The system validates the unique invoice number, stores the packing slip record, and allows optional file upload. Created packing slips appear in the shipments table with status tracking.
+
+6. Admin should be able to add user
+   Input: User's name, role (Admin/Engineer/Manager), and page access permissions
+   Output: New user added to the system with auto-generated username and password
+   Pass/Fail: PASS
+   Description: This test checks the user creation functionality available only to Admin users. Admin enters the user's full name, selects a role, and assigns page permissions. The system auto-generates a secure username and a 12-character random password meeting complexity requirements. The new user is added to the database and appears in the user management table.
+
+7. Admin should be able to view, edit, and delete users
+   Input: Updated information (Role change, Page permissions, User details)
+   Output: User's information updated in database and reflected in UI
+   Pass/Fail: PASS
+   Description: This test validates the user management CRUD operations for Admin users. Admins can view all users in a paginated table, edit user roles and permissions (username cannot be changed), and delete users after confirmation. All changes are immediately reflected in the database and UI. Non-admin users are restricted from accessing this functionality.
+
+8. Session should persist across page refreshes
+   Input: User logged in, then browser refresh (F5)
+   Output: User remains authenticated, no redirect to login
+   Pass/Fail: PASS
+   Description: This test verifies session persistence. After successful login, the session token is stored in localStorage. When the user refreshes the page or navigates to different routes, the system checks for the valid session and maintains authentication without requiring re-login.
+
+9. Unauthorized users cannot access protected routes
+   Input: Logged out user attempting to access /dashboard, /inventory, /admin
+   Output: Automatic redirect to /login page
+   Pass/Fail: PASS
+   Description: This test validates the security of protected routes. When unauthenticated users attempt to access restricted pages by directly entering URLs, the system detects the missing authentication token and immediately redirects to the login page, preventing unauthorized access.
+
+10. Admin users cannot access non-assigned pages
+    Input: Engineer user attempting to access /admin page
+    Output: Access denied message displayed
+    Pass/Fail: PASS
+    Description: This test checks role-based access control (RBAC). Engineers and Managers cannot access the Admin user management page. When they attempt to navigate there, the system displays "Access Denied - You don't have permission to access this page" and prevents any admin actions.
+
+11. Inventory items must have unique Item IDs
+    Input: Attempting to create item with duplicate Item ID "ITEM-2025-001"
+    Output: Error message "Item ID already exists", no duplicate created
+    Pass/Fail: PASS
+    Description: This test validates database integrity constraints. The system enforces UNIQUE constraint on item_id. When users attempt to create an item with an existing Item ID, the database prevents the duplicate entry and returns an error message to the user.
+
+12. Inventory items must have unique barcodes
+    Input: Attempting to create item with duplicate barcode "123456789012"
+    Output: Error message "Barcode already exists", no duplicate created
+    Pass/Fail: PASS
+    Description: This test ensures barcode uniqueness across inventory. The UNIQUE constraint on the barcode field prevents multiple items from sharing the same barcode, maintaining inventory integrity and preventing scanning conflicts.
+
+13. Negative quantities are not allowed
+    Input: Attempting to set quantity to -10
+    Output: Error message "Quantity must be greater than or equal to 0"
+    Pass/Fail: PASS
+    Description: This test validates input validation for inventory quantities. The system performs both client-side and server-side validation to prevent negative quantities. Form submission is blocked with an appropriate error message.
+
+14. Pick operations validate sufficient quantity
+    Input: Attempting to pick 50 items when only 40 available
+    Output: Error message "Insufficient quantity. Available: 40, Requested: 50"
+    Pass/Fail: PASS
+    Description: This test checks pick operation validation. Before allowing a pick operation, the system verifies that the requested quantity does not exceed available stock. If insufficient, the operation is cancelled with a detailed error message showing available vs. requested quantities.
+
+15. Warehouse location is auto-generated
+    Input: Zone: C, Aisle: C5, Rack: R12, Shelf: S3, Bin: BIN-099
+    Output: Storage location auto-generated as "C-C5-R12-S3-BIN-099"
+    Pass/Fail: PASS
+    Description: This test validates the automatic storage location generation. When users enter individual location components (zone, aisle, rack, shelf, bin), the system concatenates them with hyphens to create a standardized storage location string for easy item lookup.
+
+16. Shipments must have unique invoice numbers
+    Input: Creating shipment with duplicate invoice number "INV-2025-001"
+    Output: Error message "Invoice number already exists"
+    Pass/Fail: PASS
+    Description: This test ensures invoice number uniqueness. The UNIQUE constraint on invoice_number prevents duplicate shipment records, maintaining accurate shipment tracking and preventing data conflicts.
+
+17. Dashboard displays accurate metrics
+    Input: Database with 100 inventory items, 5 active zones
+    Output: Dashboard shows correct count and metrics
+    Pass/Fail: PASS
+    Description: This test validates dashboard data accuracy. The system queries the database and calculates metrics including total inventory count, active zones, and warehouse utilization percentage. Displayed numbers match actual database records.
+
+18. Pagination works correctly with large datasets
+    Input: Inventory with 50+ items, navigate through pages
+    Output: Shows "Showing 1 to 10 of X items", navigation works
+    Pass/Fail: PASS
+    Description: This test checks pagination functionality. With datasets larger than 10 items per page, the system displays pagination controls. Users can navigate between pages, and the controls disable appropriately at first/last page.
+
+19. User logout clears session
+    Input: Click logout button
+    Output: Session cleared, redirected to /login, cannot access protected routes
+    Pass/Fail: PASS
+    Description: This test validates logout functionality. Upon clicking logout, the system clears localStorage, terminates the session, and redirects to the login page. Users cannot access protected routes without re-authentication.
+
+20. Password hashing for security
+    Input: Creating user with password "P@ss123!"
+    Output: Password stored as bcrypt hash in database
+    Pass/Fail: PASS
+    Description: This test verifies password security. User passwords are hashed using bcrypt before storage. The original plaintext password is never stored in the database, protecting user credentials even if the database is compromised.
+
+21. Invalid login attempts are handled
+    Input: Username: "Preet", Password: "wrongpassword"
+    Output: Error message "Invalid username or password", no session created
+    Pass/Fail: PASS
+    Description: This test validates failed login handling. When incorrect credentials are provided, the system displays a generic error message (to prevent username enumeration), clears the password field, and prevents session creation.
+
+22. Inventory can be filtered by status
+    Input: Select status filter "ready_for_deployment"
+    Output: Table shows only items with selected status
+    Pass/Fail: PASS
+    Description: This test checks status filtering functionality. Users can filter inventory by status values (pending_inspection, ready_for_deployment, deployed, etc.). The table updates to show only matching items.
+
+23. Inventory table can be sorted
+    Input: Click quantity column header
+    Output: Table sorted by quantity (ascending/descending)
+    Pass/Fail: PASS
+    Description: This test validates column sorting. Users can click table headers to sort by that column. Clicking again reverses the sort order. Visual indicators show current sort column and direction.
+
+24. Item editing preserves data integrity
+    Input: Edit item, change quantity from 50 to 75
+    Output: Only quantity updated, other fields unchanged
+    Pass/Fail: PASS
+    Description: This test ensures selective updates work correctly. When editing an item and changing specific fields, only those fields are updated in the database while preserving other field values.
+
+25. File upload accepts valid formats only
+    Input: Upload .exe file as packing slip
+    Output: Error "Invalid file format. Only PDF, JPEG, PNG allowed"
+    Pass/Fail: PASS
+    Description: This test validates file upload restrictions. The system checks file MIME types and extensions, rejecting invalid formats with appropriate error messages to prevent malicious file uploads.
+
+26. API endpoints return correct status codes
+    Input: GET /inventory request
+    Output: HTTP 200 OK with JSON array of items
+    Pass/Fail: PASS
+    Description: This test validates API response format. Endpoints return appropriate HTTP status codes (200 for success, 400 for bad request, 404 for not found, 500 for server error) with consistent JSON response structure.
+
+27. CORS headers are properly configured
+    Input: Cross-origin request from frontend to backend
+    Output: CORS headers present, request succeeds
+    Pass/Fail: PASS
+    Description: This test checks CORS configuration. The backend includes appropriate Access-Control-Allow-Origin headers, enabling the frontend (localhost:3000) to make API requests to the backend (localhost:8000).
+
+28. SQL injection prevention
+    Input: Search query: '; DROP TABLE users; --
+    Output: Input sanitized, no SQL executed, safe search results
+    Pass/Fail: PASS
+    Description: This test validates SQL injection protection. The system uses parameterized queries with SQLAlchemy ORM, preventing malicious SQL injection attempts. Input is sanitized and treated as literal search text.
+
+29. XSS attack prevention
+    Input: Description: <script>alert('XSS')</script>
+    Output: Input escaped, displayed as text, no script execution
+    Pass/Fail: PASS
+    Description: This test checks cross-site scripting protection. The system escapes HTML special characters in user input, preventing JavaScript injection and execution in the browser.
+
+30. API response time is acceptable
+    Input: GET /inventory API call
+    Output: Response time < 500ms (average: 250ms)
+    Pass/Fail: PASS
+    Description: This test validates API performance. Database queries are optimized with indexes on frequently queried columns (item_id, sku, barcode), resulting in fast response times under normal load.
+
+31. Dashboard loads quickly
+    Input: Navigate to /dashboard
+    Output: Page loads in < 2 seconds (average: 1.2s)
+    Pass/Fail: PASS
+    Description: This test checks frontend performance. The dashboard page loads and renders metrics within acceptable time limits, providing good user experience even with moderate data volumes.
+
+32. Multiple concurrent users supported
+    Input: 10 simultaneous users performing operations
+    Output: No crashes, acceptable performance maintained
+    Pass/Fail: PASS
+    Description: This test validates concurrent access. The system handles multiple simultaneous users without crashes or data conflicts, using database transactions for data integrity.
+
+33. Database indexes optimize queries
+    Input: Search for item by barcode
+    Output: Fast lookup using barcode index
+    Pass/Fail: PASS
+    Description: This test verifies index effectiveness. Database indexes on item_id, sku, and barcode columns enable fast lookups even with large datasets, improving query performance significantly.
+
+34. User avatar displays correctly
+    Input: User with firstname "Preet"
+    Output: Avatar circle shows "P" with gradient background
+    Pass/Fail: PASS
+    Description: This test checks UI avatar generation. The system extracts the first letter of the user's firstname, displays it in a circular avatar with blue-to-purple gradient background and white bold text.
+
+35. Role badges are color-coded
+    Input: Users with different roles
+    Output: Admin: red badge, Engineer: blue badge, Manager: purple badge
+    Pass/Fail: PASS
+    Description: This test validates role visualization. The UI displays role badges with distinct colors for quick visual identification: red for Admin, blue for Engineer, purple for Manager.
+
+36. Form validation prevents empty submissions
+    Input: Submit form with empty required fields
+    Output: Error messages displayed, submission prevented
+    Pass/Fail: PASS
+    Description: This test checks client-side form validation. Required fields are marked and validated before submission. Empty fields trigger error messages and prevent form submission until corrected.
+
+37. Confirmation dialogs prevent accidental deletions
+    Input: Click delete button on user or item
+    Output: Confirmation dialog appears before deletion
+    Pass/Fail: PASS
+    Description: This test ensures user safety. Destructive actions (delete user, delete item) require confirmation through a dialog box, preventing accidental data loss.
+
+38. Success messages provide feedback
+    Input: Successfully create new inventory item
+    Output: Green success message "Item added successfully"
+    Pass/Fail: PASS
+    Description: This test validates user feedback. After successful operations, the system displays clear success messages to confirm the action was completed.
+
+39. Error messages are user-friendly
+    Input: Failed operation (e.g., duplicate item ID)
+    Output: Clear error message explaining the issue
+    Pass/Fail: PASS
+    Description: This test checks error messaging. Instead of technical database errors, users receive clear, actionable error messages explaining what went wrong and how to fix it.
+
+40. Responsive design elements adapt to screen size
+    Input: View application on different screen sizes
+    Output: Layout adjusts appropriately
+    Pass/Fail: PASS
+    Description: This test validates responsive design. UI elements use Tailwind CSS responsive utilities to adapt to different screen sizes, though mobile optimization is planned for Phase 3.

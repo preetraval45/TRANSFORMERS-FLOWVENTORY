@@ -17,27 +17,25 @@ Inventory & Shipment Management Portal - A shared platform for vendors and engin
 ## 🏗️ Project Structure
 
 TRANSFORMERS/
-├── Backend/           # Python & FastAPI backend services
-   ├── db/             # database models and classes
-   ├── routers/        # Api routers
-├── Database/          # Database schemas and configurations
-├── Docker/            # Docker containerization files
-├── Documentation/     # Project documentation and meeting minutes
-│   └── Minutes/       # Meeting notes and project planning
-├── Frontend/          # Frontend application (Next.js)
-│   ├── flowventory-app/  # Main Next.js application
-│   │   ├── src/         # Source code
-│   │   │   ├── app/     # App router pages
+├── src/               # Source code directory (all code organized here)
+│   ├── backend/       # Python & FastAPI backend services
+│   │   ├── db/        # Database models and classes
+│   │   └── routers/   # API routers
+│   ├── frontend/      # Next.js frontend application
+│   │   ├── src/       # Source code
+│   │   │   ├── app/   # App router pages
 │   │   │   ├── components/  # React components
 │   │   │   ├── contexts/    # React contexts
 │   │   │   └── data/        # Mock data and configurations
-│   │   ├── Dockerfile       # Docker configuration
-│   │   ├── docker-compose.yml  # Docker Compose setup
-│   │   └── nginx.conf       # Nginx configuration
-│   ├── UI/            # Design mockups and wireframes
-│   └── README.md      # Frontend documentation
+│   │   ├── public/    # Static assets
+│   │   └── Dockerfile # Docker configuration
+│   ├── database/      # Database schemas and configurations
+│   └── scripts/       # Utility scripts
+├── Docker/            # Docker orchestration files
+├── Documentation/     # Project documentation and meeting minutes
+│   └── Minutes/       # Meeting notes and project planning
 ├── GROUP-INFO.md      # Detailed team member information
-└── README.md         # Project overview and documentation
+└── README.md          # Project overview and documentation
 
 ## 🎯 Core Deliverables
 
@@ -81,7 +79,7 @@ TRANSFORMERS/
 
 1. Navigate to the frontend directory:
    ```bash
-   cd Frontend/flowventory-app
+   cd src/frontend
    ```
 
 2. Install dependencies:
@@ -99,11 +97,11 @@ TRANSFORMERS/
 ### Using Docker
 
 ```bash
-cd Frontend/flowventory-app
+cd Docker
 docker-compose up -d
 ```
 
-Access the application at `http://localhost`
+Access the application at `http://localhost:4000`
 
 ### Test Accounts
 
@@ -113,6 +111,8 @@ Access the application at `http://localhost`
 
 ## 📄 Documentation
 
-- **Frontend Documentation**: See `Frontend/README.md` for detailed setup and usage
-- **Meeting Minutes**: Available in `/Documentation/Minutes/`
+- **Frontend Documentation**: See `src/frontend/README.md` for detailed setup and usage
+- **Meeting Minutes**: Available in `Documentation/Minutes/`
 - **Team Information**: Detailed skills and expertise in `GROUP-INFO.md`
+- **Project Structure**: Comprehensive structure guide in `PROJECT_STRUCTURE.md`
+- **Test Cases**: Complete test suite documentation in `DELIVERABLE_4_TEST_CASES.md`
