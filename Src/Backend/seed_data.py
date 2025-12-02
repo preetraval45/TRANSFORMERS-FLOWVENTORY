@@ -1,0 +1,260 @@
+from db.database import SessionLocal, engine, Base
+from db import db_models
+from datetime import datetime, timedelta
+import random
+
+def seed_database():
+    """Seed the database with fake data"""
+
+    # Create tables
+    Base.metadata.create_all(bind=engine)
+
+    db = SessionLocal()
+
+    try:
+        # Clear existing data
+        db.query(db_models.PackingSlip).delete()
+        db.query(db_models.InventoryItem).delete()
+        db.query(db_models.Shipment).delete()
+        db.query(db_models.Order).delete()
+        db.query(db_models.User).delete()
+        db.commit()
+
+        print("Creating users...")
+        # Create users
+        users_data = [
+            {"username": "Preet", "firstname": "Preet", "role": "admin", "password": "P@ss123!", "assigned_pages": ["dashboard", "stock", "pick", "shipments", "inventory", "admin"]},
+            {"username": "Carlotta", "firstname": "Carlotta", "role": "admin", "password": "C@rl456@", "assigned_pages": ["dashboard", "stock", "pick", "shipments", "inventory", "admin"]},
+            {"username": "Yana", "firstname": "Yana", "role": "engineer", "password": "Y@na789#", "assigned_pages": ["dashboard", "stock", "pick", "shipments", "inventory"]},
+            {"username": "Dany", "firstname": "Dany", "role": "engineer", "password": "D@ny012$", "assigned_pages": ["dashboard", "stock", "pick", "shipments", "inventory"]},
+            {"username": "Jack", "firstname": "Jack", "role": "manager", "password": "J@ck345%", "assigned_pages": ["dashboard", "stock", "pick", "shipments", "inventory"]},
+            {"username": "Sarah", "firstname": "Sarah", "role": "manager", "password": "S@rah567&", "assigned_pages": ["dashboard", "stock", "pick", "shipments", "inventory"]},
+            {"username": "Mike", "firstname": "Mike", "role": "engineer", "password": "M!ke890*", "assigned_pages": ["dashboard", "stock", "pick", "shipments", "inventory"]},
+            {"username": "Emily", "firstname": "Emily", "role": "engineer", "password": "Em!ly234#", "assigned_pages": ["dashboard", "stock", "pick", "shipments", "inventory"]},
+            {"username": "Alex", "firstname": "Alex", "role": "manager", "password": "Al3x567$", "assigned_pages": ["dashboard", "stock", "pick", "shipments", "inventory"]},
+        ]
+
+        users = []
+        for user_data in users_data:
+            user = db_models.User(**user_data)
+            db.add(user)
+            users.append(user)
+
+        db.commit()
+        for user in users:
+            db.refresh(user)
+
+        print(f"Created {len(users)} users")
+
+        # Create orders
+        print("Creating orders...")
+        orders_data = [
+            {
+                "client_id": users[4].id,  # Jack
+                "status": "submitted",
+                "notes": "Urgent order for network equipment",
+                "items": [
+                    {"item_id": "SWITCH-001", "description": "Cisco Catalyst 9300", "vendor": "Cisco", "quantity": 5},
+                    {"item_id": "ROUTER-001", "description": "Cisco ISR 4331", "vendor": "Cisco", "quantity": 2},
+                ]
+            },
+            {
+                "client_id": users[5].id,  # Sarah
+                "status": "in_progress",
+                "notes": "Server room upgrade equipment",
+                "items": [
+                    {"item_id": "SERVER-001", "description": "Dell PowerEdge R740", "vendor": "Dell", "quantity": 3},
+                    {"item_id": "RACK-001", "description": "42U Server Rack", "vendor": "StarTech", "quantity": 2},
+                ]
+            },
+            {
+                "client_id": users[6].id,  # Mike
+                "status": "closed",
+                "notes": "Completed office setup",
+                "items": [
+                    {"item_id": "AP-001", "description": "Cisco Meraki MR46", "vendor": "Cisco", "quantity": 10},
+                    {"item_id": "CABLE-001", "description": "Cat6 Ethernet Cable 1000ft", "vendor": "Monoprice", "quantity": 5},
+                ]
+            },
+        ]
+
+        orders = []
+        for order_data in orders_data:
+            order = db_models.Order(**order_data)
+            db.add(order)
+            orders.append(order)
+
+        db.commit()
+        for order in orders:
+            db.refresh(order)
+
+        print(f"Created {len(orders)} orders")
+
+        # Create shipments (packing slips)
+        print("Creating shipments...")
+        today = datetime.now().date()
+        # Generate more shipments data
+        companies = [
+            {"name": "Cisco Systems Inc", "address": "123 Tech Drive\nSan Jose, CA 95134"},
+            {"name": "Dell Technologies", "address": "456 Server Lane\nAustin, TX 78701"},
+            {"name": "HP Enterprise", "address": "789 Hardware Blvd\nPalo Alto, CA 94304"},
+            {"name": "Lenovo Corp", "address": "321 Computer Way\nMorrisville, NC 27560"},
+            {"name": "Aruba Networks", "address": "654 WiFi Street\nSunnyvale, CA 94085"},
+            {"name": "Microsoft Corp", "address": "987 Software Ave\nRedmond, WA 98052"},
+            {"name": "VMware Inc", "address": "246 Virtual Dr\nPalo Alto, CA 94304"},
+            {"name": "Juniper Networks", "address": "135 Router Road\nSunnyvale, CA 94089"},
+        ]
+
+        ship_vias = ["FedEx", "UPS", "USPS", "DHL", "Local Delivery", "Will Call"]
+        item_types = ["Network Equipment", "Servers", "Storage Devices", "Access Points", "Routers", "Switches", "Cables", "Components"]
+
+        shipments_data = []
+        for i in range(1, 21):  # Create 20 shipments
+            company = random.choice(companies)
+            order_idx = i % len(orders)
+
+            shipment = {
+                "our_name": "Flowventory",
+                "our_address": "University of North Carolina at Charlotte\n9201 University City Blvd\nCharlotte, NC 28223",
+                "bill_to": f"{company['name']}\n{company['address']}",
+                "ship_to": f"UNCC {'Main Campus' if i % 3 == 0 else 'Server Room' if i % 3 == 1 else 'Network Closet'}\n9201 University City Blvd\nCharlotte, NC 28223",
+                "invoice_number": f"INV-2024-{i:03d}",
+                "invoice_date": today - timedelta(days=random.randint(0, 30)),
+                "due_date": today + timedelta(days=random.randint(15, 60)),
+                "ship_via": random.choice(ship_vias),
+                "order_number": f"ORD-2024-{i:03d}",
+                "qty": random.randint(1, 25),
+                "item_type": random.choice(item_types),
+                "item_desc": f"{company['name'].split()[0]} {random.choice(item_types)} - Model {random.randint(100, 999)}",
+                "order_id": orders[order_idx].id
+            }
+            shipments_data.append(shipment)
+
+        shipments = []
+        for shipment_data in shipments_data:
+            shipment = db_models.Shipment(**shipment_data)
+            db.add(shipment)
+            shipments.append(shipment)
+
+        db.commit()
+        for shipment in shipments:
+            db.refresh(shipment)
+
+        print(f"Created {len(shipments)} shipments")
+
+        # Create inventory items
+        print("Creating inventory items...")
+
+        # Base inventory items
+        base_inventory = [
+            {"item_id": "SWITCH-001", "description": "Cisco Catalyst 9300 48-Port Switch", "vendor": "Cisco", "category": "Network Equipment", "sku": "C9300-48P", "quantity": 5, "zone": "A", "aisle": "1", "rack": "3", "shelf": "2", "storage_location": "A-1-3-2", "status": "pending_inspection"},
+            {"item_id": "SERVER-001", "description": "Dell PowerEdge R740 Server", "vendor": "Dell", "category": "Servers", "sku": "PE-R740", "quantity": 2, "zone": "B", "aisle": "2", "rack": "1", "shelf": "1", "storage_location": "B-2-1-1", "status": "ready_for_deployment"},
+            {"item_id": "AP-001", "description": "Cisco Meraki MR46 Access Point", "vendor": "Cisco", "category": "Network Equipment", "sku": "MR46-HW", "quantity": 10, "zone": "A", "aisle": "3", "rack": "2", "shelf": "1", "storage_location": "A-3-2-1", "status": "installed"},
+            {"item_id": "ROUTER-001", "description": "Cisco ISR 4331 Router", "vendor": "Cisco", "category": "Network Equipment", "sku": "ISR4331", "quantity": 2, "zone": "A", "aisle": "1", "rack": "5", "shelf": "3", "storage_location": "A-1-5-3", "status": "pending_inspection"},
+            {"item_id": "RACK-001", "description": "StarTech 42U Server Rack", "vendor": "StarTech", "category": "Infrastructure", "sku": "RK42U", "quantity": 2, "zone": "C", "aisle": "1", "rack": "1", "shelf": "1", "storage_location": "C-1-1-1", "status": "ready_for_deployment"},
+        ]
+
+        # Generate large quantity of fake inventory items
+        vendors = ["Cisco", "Dell", "HP", "Lenovo", "Aruba", "Juniper", "Fortinet", "Palo Alto", "VMware", "Microsoft"]
+        categories = ["Network Equipment", "Servers", "Storage", "Semiconductors", "PCB Components", "Passive Components", "Cables", "Infrastructure"]
+        statuses = ["pending_inspection", "ready_for_deployment", "installed"]
+        zones = ["A", "B", "C", "D", "E"]
+
+        inventory_data = base_inventory.copy()
+
+        # Add 95 more items for a total of 100
+        for i in range(6, 101):
+            vendor = random.choice(vendors)
+            category = random.choice(categories)
+            status = random.choice(statuses)
+            zone = random.choice(zones)
+            aisle = str(random.randint(1, 5))
+            rack = str(random.randint(1, 10))
+            shelf = str(random.randint(1, 5))
+
+            item = {
+                "item_id": f"ITEM-{i:04d}",
+                "description": f"{vendor} {category} Component {i}",
+                "vendor": vendor,
+                "category": category,
+                "sku": f"SKU-{i:04d}",
+                "quantity": random.randint(1, 50),
+                "zone": zone,
+                "aisle": aisle,
+                "rack": rack,
+                "shelf": shelf,
+                "storage_location": f"{zone}-{aisle}-{rack}-{shelf}",
+                "status": status,
+                "weight": f"{random.randint(1, 100)}kg",
+                "dimensions": f"{random.randint(10, 50)}x{random.randint(10, 50)}x{random.randint(10, 50)}cm",
+            }
+            inventory_data.append(item)
+
+        inventory_items = []
+        for item_data in inventory_data:
+            item = db_models.InventoryItem(**item_data)
+            db.add(item)
+            inventory_items.append(item)
+
+        db.commit()
+        for item in inventory_items:
+            db.refresh(item)
+
+        print(f"Created {len(inventory_items)} inventory items")
+
+        # Create packing slips
+        print("Creating packing slips...")
+        packing_slips_data = [
+            {
+                "filename": "packing_slip_cisco_001.pdf",
+                "content_type": "application/pdf",
+                "file_url": "/uploads/packing_slip_cisco_001.pdf",
+                "shipment_id": shipments[0].id,
+                "inventory_item_id": inventory_items[0].id,
+                "uploaded_by": users[3].id  # Dany
+            },
+            {
+                "filename": "packing_slip_dell_001.pdf",
+                "content_type": "application/pdf",
+                "file_url": "/uploads/packing_slip_dell_001.pdf",
+                "shipment_id": shipments[1].id,
+                "inventory_item_id": inventory_items[1].id,
+                "uploaded_by": users[3].id  # Dany
+            },
+            {
+                "filename": "packing_slip_cisco_002.pdf",
+                "content_type": "application/pdf",
+                "file_url": "/uploads/packing_slip_cisco_002.pdf",
+                "shipment_id": shipments[2].id,
+                "inventory_item_id": inventory_items[2].id,
+                "uploaded_by": users[0].id  # Preet
+            },
+        ]
+
+        packing_slips = []
+        for ps_data in packing_slips_data:
+            ps = db_models.PackingSlip(**ps_data)
+            db.add(ps)
+            packing_slips.append(ps)
+
+        db.commit()
+
+        print(f"Created {len(packing_slips)} packing slips")
+
+        print("\n✅ Database seeded successfully!")
+        print(f"Total records created:")
+        print(f"  - {len(users)} users")
+        print(f"  - {len(orders)} orders")
+        print(f"  - {len(shipments)} shipments")
+        print(f"  - {len(inventory_items)} inventory items")
+        print(f"  - {len(packing_slips)} packing slips")
+
+    except Exception as e:
+        print(f"❌ Error seeding database: {e}")
+        db.rollback()
+        raise
+    finally:
+        db.close()
+
+if __name__ == "__main__":
+    seed_database()
